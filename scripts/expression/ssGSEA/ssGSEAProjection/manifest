@@ -1,0 +1,117 @@
+#Mon, 16 Apr 2012 16:16:27 -0400
+author=GenePattern
+description=Performs single sample GSEA Projection
+commandLine=<R2.5> <libdir>ssGSEAProjection.R ssGSEA.projection.cmdline -l<libdir> -j<java> -i<input.gct.file>  -o<output.file.prefix> -G<gene.sets.database> -d<gene.sets.database.file> -D<gene.sets.database.list.file> -c<gene.symbol.column.name>  -s<gene.set.selection> -n<sample.normalization.method> -w<weighting.exponent> -v<min.gene.set.size>
+JVMLevel=
+language=R
+name=ssGSEAProjection
+fileFormat=gct
+privacy=public
+userid=GenePattern
+quality=development
+taskType=Projection
+version=Modified with latest revisions from Pablo. Streamlined and reorganized code, and removed unused libraries.
+cpuType=any
+os=any
+LSID=urn\:lsid\:broad.mit.edu\:cancer.software.genepattern.module.analysis\:00270\:0.7
+publicationDate=04/16/2012 16\:16 
+
+p1_MODE=IN
+p1_TYPE=FILE
+p1_default_value=
+p1_description=Input gct file.  This module does not allow missing values.
+p1_fileFormat=gct
+p1_name=input.gct.file
+p1_optional=
+p1_prefix_when_specified=
+p1_type=java.io.File
+p1_value=
+
+p2_default_value=
+p2_description=Output filename prefix.  If unspecified, is set to <prefix of input.gct.file>.PROJ.
+p2_fileFormat=
+p2_name=output.file.prefix
+p2_optional=on
+p2_prefix_when_specified=
+p2_type=java.lang.String
+p2_value=
+
+p3_default_value=c1.all.v3.0.symbols.gmt [Positional]
+p3_description=Gene sets database from GSEA website.
+p3_name=gene.sets.database
+p3_optional=on
+p3_prefix_when_specified=
+p3_type=java.lang.String
+p3_value=c1.all.v3.0.symbols.gmt\=c1.all.v3.0.symbols.gmt [Positional];c1.all.v3.0.entrez.gmt\=c1.all.v3.0.entrez.gmt [Positional];c2.all.v3.0.symbols.gmt\=c2.all.v3.0.symbols.gmt [Curated];c2.all.v3.0.entrez.gmt\=c2.all.v3.0.entrez.gmt [Curated];c2.cgp.v3.0.symbols.gmt\=c2.cgp.v3.0.symbols.gmt [Curated];c2.cgp.v3.0.entrez.gmt\=c2.cgp.v3.0.entrez.gmt [Curated];c2.cp.v3.0.symbols.gmt\=c2.cp.v3.0.symbols.gmt [Curated];c2.cp.v3.0.entrez.gmt\=c2.cp.v3.0.entrez.gmt [Curated];c2.cp.biocarta.v3.0.symbols.gmt\=c2.cp.biocarta.v3.0.symbols.gmt [Curated];c2.cp.biocarta.v3.0.entrez.gmt\=c2.cp.biocarta.v3.0.entrez.gmt [Curated];c2.cp.kegg.v3.0.symbols.gmt\=c2.cp.kegg.v3.0.symbols.gmt [Curated];c2.cp.kegg.v3.0.entrez.gmt\=c2.cp.kegg.v3.0.entrez.gmt [Curated];c2.cp.reactome.v3.0.symbols.gmt\=c2.cp.reactome.v3.0.symbols.gmt [Curated];c2.cp.reactome.v3.0.entrez.gmt\=c2.cp.reactome.v3.0.entrez.gmt [Curated];c3.all.v3.0.symbols.gmt\=c3.all.v3.0.symbols.gmt [Motif];c3.all.v3.0.entrez.gmt\=c3.all.v3.0.entrez.gmt [Motif];c3.mir.v3.0.symbols.gmt\=c3.mir.v3.0.symbols.gmt [Motif];c3.mir.v3.0.entrez.gmt\=c3.mir.v3.0.entrez.gmt [Motif];c3.tft.v3.0.symbols.gmt\=c3.tft.v3.0.symbols.gmt [Motif];c3.tft.v3.0.entrez.gmt\=c3.tft.v3.0.entrez.gmt [Motif];c4.all.v3.0.symbols.gmt\=c4.all.v3.0.symbols.gmt [Computational];c4.all.v3.0.entrez.gmt\=c4.all.v3.0.entrez.gmt [Computational];c4.cgn.v3.0.symbols.gmt\=c4.cgn.v3.0.symbols.gmt [Computational];c4.cgn.v3.0.entrez.gmt\=c4.cgn.v3.0.entrez.gmt [Computational];c4.cm.v3.0.symbols.gmt\=c4.cm.v3.0.symbols.gmt [Computational];c4.cm.v3.0.entrez.gmt\=c4.cm.v3.0.entrez.gmt [Computational];c5.all.v3.0.symbols.gmt\=c5.all.v3.0.symbols.gmt [Gene Ontology];c5.all.v3.0.entrez.gmt\=c5.all.v3.0.entrez.gmt [Gene Ontology];c5.bp.v3.0.symbols.gmt\=c5.bp.v3.0.symbols.gmt [Gene Ontology];c5.bp.v3.0.entrez.gmt\=c5.bp.v3.0.entrez.gmt [Gene Ontology];c5.cc.v3.0.symbols.gmt\=c5.cc.v3.0.symbols.gmt [Gene Ontology];c5.cc.v3.0.entrez.gmt\=c5.cc.v3.0.entrez.gmt [Gene Ontology];c5.mf.v3.0.symbols.gmt\=c5.mf.v3.0.symbols.gmt [Gene Ontology];c5.mf.v3.0.entrez.gmt\=c5.mf.v3.0.entrez.gmt [Gene Ontology]
+
+p4_MODE=IN
+p4_TYPE=FILE
+p4_default_value=
+p4_description=Gene sets database - .gmt.  Upload a gene set if your gene set is not listed as a choice for the gene sets database parameter.
+p4_fileFormat=gmt
+p4_name=gene.sets.database.file
+p4_optional=on
+p4_prefix_when_specified=
+p4_type=java.io.File
+p4_value=
+
+p5_MODE=IN
+p5_TYPE=FILE
+p5_default_value=
+p5_description=.txt file containing list of .gmt files.  This is typically created by the ListFiles module and is used if projecting expression data to gene sets defined across multiple .gmt files.
+p5_fileFormat=txt
+p5_name=gene.sets.database.list.file
+p5_optional=on
+p5_prefix_when_specified=
+p5_type=java.io.File
+p5_value=
+
+p6_default_value=Name
+p6_description=Specifies the gct data column containing gene symbols.  In most cases this will be "Name".
+p6_fileFormat=
+p6_name=gene.symbol.column.name
+p6_optional=
+p6_prefix_when_specified=
+p6_type=java.lang.String
+p6_value=Name;Description
+
+p7_default_value=ALL
+p7_description=Comma-separated list of gene set names on which to project expression data. Set to "ALL" if projecting to all defined gene sets.
+p7_fileFormat=
+p7_name=gene.set.selection
+p7_optional=
+p7_prefix_when_specified=
+p7_type=java.lang.String
+p7_value=
+
+p8_default_value=rank
+p8_description=Method used to normalize gene expression data
+p8_fileFormat=
+p8_name=sample.normalization.method
+p8_optional=
+p8_prefix_when_specified=
+p8_type=java.lang.String
+p8_value=rank;log;log.rank
+
+p9_default_value=0.75
+p9_description=Module authors strongly recommend against changing from default.
+p9_fileFormat=
+p9_name=weighting.exponent
+p9_optional=
+p9_prefix_when_specified=
+p9_type=java.lang.Float
+p9_value=
+
+p10_default_value=10
+p10_description=Gene sets smaller than this are excluded from the analysis.
+p10_fileFormat=
+p10_name=min.gene.set.size
+p10_optional=
+p10_prefix_when_specified=
+p10_type=java.lang.Integer
+p10_value=
+
+
+
+
+

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+for i in `cat $HOME_DIR/untreated_highdose_survivors.txt | cut -f1 - | tr "\n" " "`
+  do for RUN in run2 run3 run4 run5
+    do echo `ls -lh single-cell/mapped/Sample_$i/$RUN/accepted_hits.bam`
+  done
+done

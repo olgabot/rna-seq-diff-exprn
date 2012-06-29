@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+<title>/home/obot/single-cell/expression/bedtools/DEXSeq//testForDEU.html</title>
+
+
+
+</head>
+<body><h1>DEXSeq differential exon usage test</h1><h2>Experimental design</h2><table border="1">
+<tr>
+<td>sample</td><td>sample</td><td>condition</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_3/dexseq_counts.txt</td><td bgcolor="white">Sample_3</td><td bgcolor="#2B83BAAF">Untreated</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_4/dexseq_counts.txt</td><td bgcolor="white">Sample_4</td><td bgcolor="#2B83BAAF">Untreated</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_6/dexseq_counts.txt</td><td bgcolor="white">Sample_6</td><td bgcolor="#2B83BAAF">Untreated</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_7/dexseq_counts.txt</td><td bgcolor="white">Sample_7</td><td bgcolor="#2B83BAAF">Untreated</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_8/dexseq_counts.txt</td><td bgcolor="white">Sample_8</td><td bgcolor="#2B83BAAF">Untreated</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_9/dexseq_counts.txt</td><td bgcolor="white">Sample_9</td><td bgcolor="#2B83BAAF">Untreated</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_34/dexseq_counts.txt</td><td bgcolor="white">Sample_34</td><td bgcolor="#D7191CAF">HighDose</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_35/dexseq_counts.txt</td><td bgcolor="white">Sample_35</td><td bgcolor="#D7191CAF">HighDose</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_36/dexseq_counts.txt</td><td bgcolor="white">Sample_36</td><td bgcolor="#D7191CAF">HighDose</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_38/dexseq_counts.txt</td><td bgcolor="white">Sample_38</td><td bgcolor="#D7191CAF">HighDose</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_39/dexseq_counts.txt</td><td bgcolor="white">Sample_39</td><td bgcolor="#D7191CAF">HighDose</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_40/dexseq_counts.txt</td><td bgcolor="white">Sample_40</td><td bgcolor="#D7191CAF">HighDose</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_62/dexseq_counts.txt</td><td bgcolor="white">Sample_62</td><td bgcolor="#FFFFBFAF">Survivors</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_63/dexseq_counts.txt</td><td bgcolor="white">Sample_63</td><td bgcolor="#FFFFBFAF">Survivors</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_64/dexseq_counts.txt</td><td bgcolor="white">Sample_64</td><td bgcolor="#FFFFBFAF">Survivors</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_67/dexseq_counts.txt</td><td bgcolor="white">Sample_67</td><td bgcolor="#FFFFBFAF">Survivors</td></tr>
+<tr>
+<td bgcolor="white">/home/obot/single-cell/data/Sample_68/dexseq_counts.txt</td><td bgcolor="white">Sample_68</td><td bgcolor="#FFFFBFAF">Survivors</td></tr>
+</table>
+<h3>
+
+formulaDispersion = count ~ sample + condition * exon</h3><h3>
+formula0 = count ~ sample + exon + condition</h3><h3>
+formula1 = count ~ sample + exon + condition * I(exon == exonID)</h3><h2>testForDEU result table</h2>
