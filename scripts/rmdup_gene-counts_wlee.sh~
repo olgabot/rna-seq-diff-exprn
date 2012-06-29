@@ -1,0 +1,33 @@
+#/bin/sh
+# To run:
+# /home/obot/single-cell/scripts/remove-pcr-duplicates.sh
+SINGLE_CELL_DIR=/home/obot/single-cell
+PATH=$PATH:/share/apps/samtools-0.1.18
+IN_DIR=/home/wlee/RNASeq/single-cell/Salk_Taxol_BamFiles
+
+for i in `cat $SINGLE_CELL_DIR/untreated_highdose_survivors.txt | cut -f1 - | tr "\n" " "`
+do
+#  for RUN in `ls $HOME_DIR/unmapped`
+#    do
+  OUT_DIR=$SINGLE_CELL_DIR/data/Sample_$i
+  if [ ! -d $OUT_DIR ]; then
+      mkdir -p $OUT_DIR
+  fi  
+  IN_BAM=$IN_DIR/tophat_6n6_trimmed_$i\_merged.bam
+#  if [ -e $OUT_DIR/accepted_hits.bam ]; then
+  RMDUP_BAM=$OUT_DIR/tophat_6n6_trimmed_$i\_merged_rmdup.bam
+  if [ ! -e $RMDUP_BAM ]; then
+      echo 'processing:' $IN_BAM
+      BAM_SORTED=$OUT_DIR/tophat_6n6_trimmed_$i\_merged_sorted
+      samtools sort $IN_BAM $BAM_SORTED
+      # 2>$OUT_DIR/index.log redirects stderr ("2") to index.log
+      samtools index $BAM_SORTED.bam 2>$OUT_DIR/index.log
+      samtools rmdup $BAM_SORTED.bam $RMDUP_BAM 2>$OUT_DIR/rmdup.log
+  fi
+	# Estimate gene expression counts
+  echo "estimating gene expression for:" $RMDUP_BAM
+  $SINGLE_CELL_DIR/scripts/gene-counts.sh \
+      $RMDUP_BAM $OUT_DIR $i
+ # fi
+ # done
+done

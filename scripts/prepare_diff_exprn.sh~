@@ -1,0 +1,6 @@
+#!/usr/bin/sh
+
+$SAM=$1
+$GFF=$2
+
+python2.7 htseq-count --stranded=no $SAM $GFF 

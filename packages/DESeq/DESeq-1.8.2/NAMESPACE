@@ -1,0 +1,37 @@
+import( Biobase )
+importFrom( genefilter, rowVars )
+importFrom( geneplotter, multiecdf )
+
+useDynLib( DESeq, calc_pvals )
+
+exportClasses( "CountDataSet" )
+
+exportMethods(
+   counts, "counts<-",
+   sizeFactors, "sizeFactors<-",
+   conditions,  "conditions<-",
+   dispTable, "dispTable",
+   estimateSizeFactors,
+   estimateDispersions
+)
+
+export( 
+   newCountDataSet,
+   estimateVarianceFunctions,  # removed; only stub with error msg left
+   varianceFitDiagnostics,     # removed; only stub with error msg left
+   residualsEcdfPlot,          # removed; only stub with error msg left
+   nbinomTest,
+   getBaseMeansAndVariances,
+   nbinomTestForMatrices,
+   estimateSizeFactorsForMatrix,
+   scvPlot,                    # removed; only stub with error msg left
+   getVarianceStabilizedData,
+   makeExampleCountDataSet,
+   adjustScvForBias,
+   fitNbinomGLMsForMatrix,
+   fitNbinomGLMs,
+   nbkd.sf,
+   nbinomGLMTest,
+   dispTable,
+   fitInfo
+)

@@ -1,0 +1,58 @@
+#/bin/sh
+# To run:
+# /home/obot/single-cell/scripts/remove-pcr-duplicates.sh
+HOME_DIR=/home/obot/single-cell
+PATH=$PATH:/share/apps/samtools-0.1.18
+
+for i in `cat $HOME_DIR/README.txt | cut -f1 - | tr "\n" " "`
+do
+  for RUN in `ls $HOME_DIR/unmapped`
+    do
+    OUT_DIR=$HOME_DIR/mapped/Sample_$i/$RUN
+    IN_BAM=$OUT_DIR/accepted_hits.bam
+    if [ -e $OUT_DIR/accepted_hits.bam ]; then
+        # Do the intersect
+	SINO_BAM=$OUT_DIR/accepted_hits_sino.bam
+	/share/apps/BEDTools-Version-2.15.0/bin/bedtools intersect \
+	    -abam $BAM -b /home/obot/hg19_ensembl-genes_single-exon.bed > $SINO_BAM
+	REF_BAM=$OUT_DIR/accepted_hits_reference.bam
+	/share/apps/BEDTools-Version-2.15.0/bin/bedtools intersect \
+	    -abam $BAM -b /home/obot/hg19_reference_known_genes.bed > $REF_BAM   
+
+        # Gene expression estimation
+	SINO_GENE_COUNTS=$OUT_DIR/accepted_hits_sino_gene_counts.txt
+	/share/apps/BEDTools-Version-2.15.0/bin/bedtools coverage \
+	    -abam $SINO_BAM \
+	    -b /home/obot/hg19_reference_known_genes.bed > $SINO_GENE_COUNTS
+	REF_GENE_COUNTS=$OUT_DIR/accepted_hits_sino_gene_counts.txt
+	/share/apps/BEDTools-Version-2.15.0/bin/bedtools coverage \
+	    -abam $REF_BAM \
+	    -b /home/obot/hg19_reference_known_genes.bed > $REF_GENE_COUNTS
+
+	RMDUP_BAM=$OUT_DIR/accepted_hits_rmdup.bam
+	if [ ! -e $RMDUP_BAM ]; then
+	    echo 'processing:' $IN_BAM
+	    samtools rmdup $IN_BAM $RMDUP_BAM >$OUT_DIR/rmdup.log
+	    samtools index $RMDUP_BAM >$OUT_DIR/index.log
+	    STATS=$OUT_DIR/idxstats.tab
+	    samtools idxstats $RMDUP_BAM >$STATS
+#	MAPPED=$OUT_DIR/idxstats.mapped
+	    # Remove the mitochondrial DNA because its circular chromosome gets amplified like whoa
+	    MAPPED=`cat $STATS | sed '/^chrM/d' | awk 'BEGIN { sum=0 } { sum+=$3 } END { print sum }'`
+#	    echo 'mapped:' $MAPPED
+	    STATS_FRACS=$OUT_DIR/idxstats_fractions.tab
+	    cat $STATS | awk '{print $3/$2}' > $STATS_FRACS
+#	    QSUB_ERR=$OUT_DIR/qsub.err
+	    RIGHT_INFO=$OUT_DIR/right_kept_reads.info
+	    LEFT_INFO=$OUT_DIR/left_kept_reads.info
+	    RIGHT_UNMAPPED=`grep 'reads_in =' $RIGHT_INFO | awk '{print(substr($2,index($2, "=")+1, length($2)))}'`
+	    LEFT_UNMAPPED=`grep 'reads_in =' $LEFT_INFO | awk '{print(substr($2,index($2, "=")+1, length($2)))}'`
+	    echo 'right unmapped:' $RIGHT_UNMAPPED
+	    echo 'left unmapped:' $LEFT_UNMAPPED
+	    MAPPED_STATS=$OUT_DIR/mapping_stats.tab
+	    echo $RIGHT_UNMAPPED $LEFT_UNMAPPED $MAPPED | awk '{print "#mapped\t#unmapped\t%mapped"} \
+{ UNMAPPED+=$1+$2 }  { print $3"\t"UNMAPPED"\t"$3/UNMAPPED }' >$MAPPED_STATS
+	fi
+    fi
+  done
+done

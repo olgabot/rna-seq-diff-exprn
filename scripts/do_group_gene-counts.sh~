@@ -1,0 +1,3 @@
+
+
+for grp in `cut -f2 /home/obot/single-cell/untreated_highdose_survivors.txt | uniq | tr "\n" " "`

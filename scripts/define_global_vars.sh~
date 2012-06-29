@@ -1,0 +1,9 @@
+#!/bin/sh
+
+SINGLE_CELL_DIR=/home/obot/single-cell
+SCRIPTS_DIR=$SINGLE_CELL_DIR/scripts
+DATA_DIR=$SINGLE_CELL_DIR/data
+RESULTS_DIR=$SINGLE_CELL_DIR/results
+EXPR_DIR=$RESULTS_DIR/results/expression
+SV_DIR=$RESULTS_DIR/structural-variation
+

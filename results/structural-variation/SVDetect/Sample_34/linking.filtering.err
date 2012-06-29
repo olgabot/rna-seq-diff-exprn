@@ -1,0 +1,254 @@
+# Making the fragments library...
+-- 1
+-- 2
+-- 3
+-- 4
+-- 5
+-- 6
+-- 7
+-- 8
+-- 9
+-- 10
+-- 11
+-- 12
+-- 13
+-- 14
+-- 15
+-- 16
+-- 17
+-- 18
+-- 19
+-- 20
+-- 21
+-- 22
+-- X
+-- Y
+# Splitting the mate file "/home/obot/single-cell/data/Sample_34/tophat_6n6_trimmed_34_merged_rmdup.bam" for parallel processing...
+# Splitted mate files of "/home/obot/single-cell/data/Sample_34/tophat_6n6_trimmed_34_merged_rmdup.bam" created.
+# interchrs : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.interchrs
+-- chromosome=interchrs
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- interchrs : No mate-pairs !
+-- interchrs : No links have been found with the selected type of structural variations (all)
+# 1 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.1
+-- chromosome=1
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 1 : No mate-pairs !
+-- 1 : No links have been found with the selected type of structural variations (all)
+# 2 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.2
+-- chromosome=2
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 2 : No mate-pairs !
+-- 2 : No links have been found with the selected type of structural variations (all)
+# 3 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.3
+-- chromosome=3
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 3 : No mate-pairs !
+-- 3 : No links have been found with the selected type of structural variations (all)
+# 4 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.4
+-- chromosome=4
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 4 : No mate-pairs !
+-- 4 : No links have been found with the selected type of structural variations (all)
+# 5 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.5
+-- chromosome=5
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 5 : No mate-pairs !
+-- 5 : No links have been found with the selected type of structural variations (all)
+# 6 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.6
+-- chromosome=6
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 6 : No mate-pairs !
+-- 6 : No links have been found with the selected type of structural variations (all)
+# 7 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.7
+-- chromosome=7
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 7 : No mate-pairs !
+-- 7 : No links have been found with the selected type of structural variations (all)
+# 8 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.8
+-- chromosome=8
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 8 : No mate-pairs !
+-- 8 : No links have been found with the selected type of structural variations (all)
+# 9 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.9
+-- chromosome=9
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 9 : No mate-pairs !
+-- 9 : No links have been found with the selected type of structural variations (all)
+# 10 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.10
+-- chromosome=10
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 10 : No mate-pairs !
+-- 10 : No links have been found with the selected type of structural variations (all)
+# 11 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.11
+-- chromosome=11
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 11 : No mate-pairs !
+-- 11 : No links have been found with the selected type of structural variations (all)
+# 12 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.12
+-- chromosome=12
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 12 : No mate-pairs !
+-- 12 : No links have been found with the selected type of structural variations (all)
+# 13 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.13
+-- chromosome=13
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 13 : No mate-pairs !
+-- 13 : No links have been found with the selected type of structural variations (all)
+# 14 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.14
+-- chromosome=14
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 14 : No mate-pairs !
+-- 14 : No links have been found with the selected type of structural variations (all)
+# 15 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.15
+-- chromosome=15
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 15 : No mate-pairs !
+-- 15 : No links have been found with the selected type of structural variations (all)
+# 16 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.16
+-- chromosome=16
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 16 : No mate-pairs !
+-- 16 : No links have been found with the selected type of structural variations (all)
+# 17 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.17
+-- chromosome=17
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 17 : No mate-pairs !
+-- 17 : No links have been found with the selected type of structural variations (all)
+# 18 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.18
+-- chromosome=18
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 18 : No mate-pairs !
+-- 18 : No links have been found with the selected type of structural variations (all)
+# 19 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.19
+-- chromosome=19
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 19 : No mate-pairs !
+-- 19 : No links have been found with the selected type of structural variations (all)
+# 20 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.20
+-- chromosome=20
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 20 : No mate-pairs !
+-- 20 : No links have been found with the selected type of structural variations (all)
+# 21 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.21
+-- chromosome=21
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 21 : No mate-pairs !
+-- 21 : No links have been found with the selected type of structural variations (all)
+# 22 : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.22
+-- chromosome=22
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- 22 : No mate-pairs !
+-- 22 : No links have been found with the selected type of structural variations (all)
+# X : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.X
+-- chromosome=X
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- X : No mate-pairs !
+-- X : No links have been found with the selected type of structural variations (all)
+# Y : Linking procedure...
+-- file=tmp/mates/tophat_6n6_trimmed_34_merged_rmdup.bam.all.Y
+-- chromosome=Y
+-- input format=sam
+-- type=all
+-- read1 length=50, read2 length=50
+-- window size=4000, step length=1000
+-- Y : No mate-pairs !
+-- Y : No links have been found with the selected type of structural variations (all)
+ls: tmp/links/tophat_6n6_trimmed_34_merged_rmdup.bam.all*links: No such file or directory
+# Error: No links files created at tmp/ : at /share/apps/SVDetect_r0.8/bin/SVDetect line 155, <MATES> line 69910298.
