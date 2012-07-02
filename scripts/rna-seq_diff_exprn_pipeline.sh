@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 ############# BEGIN Initialization ###############
 PATH=/usr/local/bin/python2.7:$PATH 
 PATH=$PATH:/share/apps/samtools-0.1.18:/share/apps/BEDTools-Version-2.15.0/
@@ -13,6 +12,8 @@ export LC_ALL=POSIX # Forces char encoding to be POSIX
 # list of *all* BAM files or IDs *are* stored
 COMMON_VARS=$1
 if [ -e $COMMON_VARS ] ; then
+    # remove the common-variables file to make sure 
+    # we're starting anew
     rm $COMMON_VARS
 fi
 echo '#!/bin/sh\n' | cat - >> $COMMON_VARS
@@ -53,33 +54,35 @@ BASE_OUT_DIR=$2
 echo 'BASE_OUT_DIR=$BASE_OUT_DIR' | cat - >> $COMMON_VARS
 
 # tab-delimited file of the conditions of each sample, e.g.:
-# bam_prefix                   id      group     gender
+# bam_prefix                   id      group     gender read_type
 # (no header in actual file, this is an example)
-# ~/data/sample1/accepted_hits sample1 untreated female
-# ~/data/sample2/accepted_hits sample2 untreated female
-# ~/data/sample3/accepted_hits sample3 untreated male
-# ~/data/sample4/accepted_hits sample4 treated female
-# ~/data/sample5/accepted_hits sample5 treated female
-# ~/data/sample6/accepted_hits sample6 treated male
+# ~/data/sample1/accepted_hits sample1 untreated female paired_end
+# ~/data/sample2/accepted_hits sample2 untreated female paired_end
+# ~/data/sample3/accepted_hits sample3 untreated male paired_end
+# ~/data/sample4/accepted_hits sample4 treated female paired_end
+# ~/data/sample5/accepted_hits sample5 treated female paired_end
+# ~/data/sample6/accepted_hits sample6 treated male paired_end
 COND=$3
 echo 'COND=$COND' | cat - >> $COMMON_VARS
 
+COND_WITHOUT_COMMENTS=`sed -e 's/#.*//' -e 's/[ ^I]*$//' -e '/^$/ d' < $COND`
+
 # The bam prefixes of the files you want to use (comma-separated)
-BAM_PREFIXES=`cut -f1 $COND | tr "\n" ","`
+BAM_PREFIXES=`echo $COND_WITHOUT_COMMENTS | cut -f1 | tr "\n" ","`
 echo 'BAM_PREFIXES=$BAM_PREFIXES' | cat - >> $COMMON_VARS
 
 # Sample identification for each sample (comma-separated)
-IDS=`cut -f2 $COND | tr "\n" ","`
+IDS=`echo $COND_WITHOUT_COMMENTS | cut -f2 | tr "\n" ","`
 echo 'IDS=$IDS' | cat - >> $COMMON_VARS
 
 # Treatment groups (space-separated)
-GROUPS=`cut -f3 $COND | uniq | tr "\n" " "`
+GROUPS=`echo $COND_WITHOUT_COMMENTS | cut -f3 | uniq | tr "\n" " "`
 echo 'GROUPS=$GROUPS' | cat - >> $COMMON_VARS
 
 # To determine whether ChrY should be included or omitted
 # from the analyses, specify the gender of each sample
 # (comma-separated)
-GENDERS=`cut -f3 $COND | tr "\n" ","` 
+GENDERS=`echo $COND_WITHOUT_COMMENTS | cut -f3 | tr "\n" ","` 
 echo 'GENDERS=$GENDERS\n' | cat - >> $COMMON_VARS
 
 # GFF files that you want to use to estimate gene counts. 
@@ -153,7 +156,7 @@ declare -a ID_ARRAY=( `echo $IDS | tr "," " "`)
 echo 'declare -a ID_ARRAY=$ID_ARRAY' \
     | cat - >> $COMMON_VARS
 
-declare -a GROUPS_ARRAY=( `cut -f3 $COND| tr "\n" " "` )
+declare -a GROUPS_ARRAY=( `echo $GROUPS` )
 echo 'declare -a GROUPS_ARRAY=$GROUPS_ARRAY' \
     | cat - >> $COMMON_VARS
 
