@@ -1,0 +1,3 @@
+SCRIPTS_DIR=/share/apps/bin
+CIRCOS_BIN=/share/apps/circos-0.60/bin/circos
+
