@@ -6,26 +6,6 @@ PATH=$PATH:/share/apps/samtools-0.1.18:/share/apps/BEDTools-Version-2.15.0/
 export PATH
 export LC_ALL=POSIX # Forces char encoding to be POSIX
 
-# Save all the variables into a common variable .sh file
-# Variables that are specific to a single sample (ie a BAM
-# file or an ID) are NOT stored, but the comma-separated
-# list of *all* BAM files or IDs *are* stored
-COMMON_VARS=$1
-if [ -e $COMMON_VARS ] ; then
-    # remove the common-variables file to make sure 
-    # we're starting anew
-    rm $COMMON_VARS
-fi
-echo '#!/bin/sh\n' | cat - >> $COMMON_VARS
-SCRIPTS_DIR=/share/apps/bin
-echo 'SCRIPTS_DIR=$SCRIPTS_DIR' | cat - >> $COMMON_VARS
-CIRCOS_BIN=/share/apps/circos-0.60/bin/circos
-echo 'CIRCOS_BIN=$CIRCOS_BIN' | cat - >> $COMMON_VARS
-echo 'GENOME=/share/apps/BEDTools-Version-2.15.0/genomes/human.hg19.genome\n' \
-    | cat - >> $COMMON_VARS
-echo '# File that has UCSC transcript IDs in column 1\n# and gene symbol in column 2\nUCSC_SYMBOL=/share/reference/hg19/genes/hg19_ucsc-genes_symbol_no-header.tab' \
-    | cat - >> $COMMON_VARS
-echo '# For DEXSeq\nDEXSEQ_GFF=/home/obot/bed_and_gtf/hg19_ucsc-genes_dexseq.gff'
 ############# END Initialization ###############
 
 ##### Error-handling #####
@@ -50,8 +30,34 @@ echo '# Globally used variables' | cat - >> $COMMON_VARS
 # (This is a single directory: rseqc, gene counts, and genome 
 # coverage output go to $BASE_OUT_DIR/$ID for each sample)
 # e.g. ~/data
-BASE_OUT_DIR=$2
+BASE_OUT_DIR=`echo $2 | sed 's:/$::'`
+
+if [[ ! -d $BASE_OUT_DIR ]]; then
+    # If this directory does not yet exist, create it
+    mkdir $BASE_OUT_DIR
+fi
 echo 'BASE_OUT_DIR=$BASE_OUT_DIR' | cat - >> $COMMON_VARS
+
+# Save all the variables into a common variable .sh file
+# Variables that are specific to a single sample (ie a BAM
+# file or an ID) are NOT stored, but the comma-separated
+# list of *all* BAM files or IDs *are* stored
+COMMON_VARS=$1
+if [ -e $COMMON_VARS ] ; then
+    # remove the common-variables file to make sure 
+    # we're starting anew
+    rm $COMMON_VARS
+fi
+echo '#!/bin/sh\n' | cat - >> $COMMON_VARS
+SCRIPTS_DIR=/share/apps/bin
+echo 'SCRIPTS_DIR=$SCRIPTS_DIR' | cat - >> $COMMON_VARS
+CIRCOS_BIN=/share/apps/circos-0.60/bin/circos
+echo 'CIRCOS_BIN=$CIRCOS_BIN' | cat - >> $COMMON_VARS
+echo 'GENOME=/share/apps/BEDTools-Version-2.15.0/genomes/human.hg19.genome\n' \
+    | cat - >> $COMMON_VARS
+echo '# File that has UCSC transcript IDs in column 1\n# and gene symbol in column 2\nUCSC_SYMBOL=/share/reference/hg19/genes/hg19_ucsc-genes_symbol_no-header.tab' \
+    | cat - >> $COMMON_VARS
+echo '# For DEXSeq\nDEXSEQ_GFF=/home/obot/bed_and_gtf/hg19_ucsc-genes_dexseq.gff'
 
 # tab-delimited file of the conditions of each sample, e.g.:
 # bam_prefix                   id      group     gender read_type
@@ -75,8 +81,8 @@ echo 'BAM_PREFIXES=$BAM_PREFIXES' | cat - >> $COMMON_VARS
 IDS=`echo $COND_WITHOUT_COMMENTS | cut -f2 | tr "\n" ","`
 echo 'IDS=$IDS' | cat - >> $COMMON_VARS
 
-# Treatment groups (space-separated)
-GROUPS=`echo $COND_WITHOUT_COMMENTS | cut -f3 | uniq | tr "\n" " "`
+# Treatment groups (comma-separated)
+GROUPS=`echo $COND_WITHOUT_COMMENTS | cut -f3 | uniq | tr "\n" ","`
 echo 'GROUPS=$GROUPS' | cat - >> $COMMON_VARS
 
 # To determine whether ChrY should be included or omitted
