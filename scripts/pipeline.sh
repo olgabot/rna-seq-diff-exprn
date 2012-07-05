@@ -31,11 +31,12 @@ function error_exit
 # (This is a single directory: rseqc, gene counts, and genome 
 # coverage output go to $BASE_OUT_DIR/$ID for each sample)
 # e.g. ~/data
+# Use sed to remove trailing forward slashes
 BASE_OUT_DIR=`echo $1 | sed 's:/$::'`
 
 if [[ ! -d $BASE_OUT_DIR ]]; then
     # If this directory does not yet exist, create it
-    mkdir $BASE_OUT_DIR
+    mkdir -p $BASE_OUT_DIR
 fi
 
 # Save all the variables into a common variable .sh file
@@ -50,15 +51,12 @@ if [ -e $COMMON_VARS ] ; then
 fi
 echo '#!/bin/sh\n' | cat - >> $COMMON_VARS
 echo '# Globally used variables' | cat - >> $COMMON_VARS
-SCRIPTS_DIR=/share/apps/bin
+SCRIPTS_DIR=scripts
 echo 'SCRIPTS_DIR=$SCRIPTS_DIR' | cat - >> $COMMON_VARS
-CIRCOS_BIN=/share/apps/circos-0.60/bin/circos
+CIRCOS_BIN=`which circos`
 echo 'CIRCOS_BIN=$CIRCOS_BIN' | cat - >> $COMMON_VARS
 echo 'GENOME=/share/apps/BEDTools-Version-2.15.0/genomes/human.hg19.genome\n' \
     | cat - >> $COMMON_VARS
-echo '# File that has UCSC transcript IDs in column 1\n# and gene symbol in column 2\nUCSC_SYMBOL=/share/reference/hg19/genes/hg19_ucsc-genes_symbol_no-header.tab' \
-    | cat - >> $COMMON_VARS
-echo '# For DEXSeq\nDEXSEQ_GFF=/home/obot/bed_and_gtf/hg19_ucsc-genes_dexseq.gff' | cat - >> $COMMON_VARS
 echo 'BASE_OUT_DIR=$BASE_OUT_DIR' | cat - >> $COMMON_VARS
 
 
@@ -71,7 +69,7 @@ echo 'BASE_OUT_DIR=$BASE_OUT_DIR' | cat - >> $COMMON_VARS
 # ~/data/sample4/accepted_hits sample4 treated female paired_end
 # ~/data/sample5/accepted_hits sample5 treated female paired_end
 # ~/data/sample6/accepted_hits sample6 treated male paired_end
-COND=$3
+COND=$2
 echo 'COND=$COND' | cat - >> $COMMON_VARS
 
 COND_WITHOUT_COMMENTS=$COND.without_comments
@@ -79,21 +77,21 @@ sed -e 's/#.*//' -e 's/[ ^I]*$//' -e '/^$/ d' \
     < $COND > $COND_WITHOUT_COMMENTS
 
 # The bam prefixes of the files you want to use (comma-separated)
-BAM_PREFIXES=`cut -f1 $COND_WITHOUT_COMMENTS | tr "\n" ","`
+BAM_PREFIXES=`cut -f1 $COND_WITHOUT_COMMENTS | tr "\n" "," | sed 's:,$::'`
 echo 'BAM_PREFIXES=$BAM_PREFIXES' | cat - >> $COMMON_VARS
 
 # Sample identification for each sample (comma-separated)
-IDS=`cut -f2 $COND_WITHOUT_COMMENTS | tr "\n" ","`
+IDS=`cut -f2 $COND_WITHOUT_COMMENTS | tr "\n" "," | sed 's:,$::' `
 echo 'IDS=$IDS' | cat - >> $COMMON_VARS
 
 # Treatment groups (comma-separated)
-TREATMENT_GROUPS=`cut -f3 $COND_WITHOUT_COMMENTS | uniq | tr "\n" ","`
+TREATMENT_GROUPS=`cut -f3 $COND_WITHOUT_COMMENTS | uniq | tr "\n" "," | sed 's:,$::'`
 echo 'TREATMENT_GROUPS=$TREATMENT_GROUPS' | cat - >> $COMMON_VARS
 
 # To determine whether ChrY should be included or omitted
 # from the analyses, specify the gender of each sample
 # (comma-separated)
-GENDERS=`cut -f4 $COND_WITHOUT_COMMENTS | tr "\n" ","` 
+GENDERS=`cut -f4 $COND_WITHOUT_COMMENTS | tr "\n" "," | sed 's:,$::'` 
 echo 'GENDERS=$GENDERS\n' | cat - >> $COMMON_VARS
 
 # GTF (Gene Transfer Format) files that you want to use to estimate gene 
@@ -120,7 +118,7 @@ echo 'GENDERS=$GENDERS\n' | cat - >> $COMMON_VARS
 #    Make sure to include the file extension (.gtf) in the filename
 # 5. Press "get output"
 #    --> A file will be downloaded to your "Downloads" folder
-GTF=$4
+GTF=$3
 echo 'GFF=$GFF' | cat - >> $COMMON_VARS
 
 # GTF (Gene Transfer Format) file specially formatted for use with
@@ -131,12 +129,12 @@ echo 'GFF=$GFF' | cat - >> $COMMON_VARS
 # [The dollar sign `$' indicates a bash shell and shows that we are
 # using a command-line interface, as opposed to a command embedded
 # in source code such as this document.]
-DEXSEQ_GTF=$5
+DEXSEQ_GTF=$4
 
 # 
 # Tab-delimited file
 #   $ cut -f 1,5 < hg19_kgXref.txt | sed 1d > hg19_id_symbol.txt
-TXPTID_SYMBOL=$6
+TXPTID_SYMBOL=$5
 
 # BED (Browser Extensible Data) files that you want to use to estimate 
 # gene counts.
@@ -161,7 +159,7 @@ TXPTID_SYMBOL=$6
 #    Make sure to include the file extension (.gtf) in the filename
 # 5. Press "get output"
 #    --> A file will be downloaded to your "Downloads" folder
-BED=$7
+BED=$6
 echo 'BED=$BED' | cat - >> $COMMON_VARS
 
 # "Genome" file which really just says how long each chromosome is.
@@ -242,7 +240,7 @@ declare -a ID_ARRAY=( `echo $IDS | tr "," " "`)
 echo 'declare -a ID_ARRAY=$ID_ARRAY' \
     | cat - >> $COMMON_VARS
 
-declare -a GROUPS_ARRAY=( `echo $GROUPS` )
+declare -a GROUPS_ARRAY=( `echo $TREATMENT_GROUPS | tr "," " "` )
 echo 'declare -a GROUPS_ARRAY=$GROUPS_ARRAY' \
     | cat - >> $COMMON_VARS
 
@@ -250,7 +248,7 @@ declare -a GENDER_ARRAY=( `echo $GENDERS | tr "," " "`)
 echo 'declare -a GENDER_ARRAY=$GENDER_ARRAY' \
     | cat - >> $COMMON_VARS
 
-if [[${#BAM_PREFIX_ARRAY[@]} -ne ${#ID_ARRAY[@]}]] ; then
+if [[ ${#BAM_PREFIX_ARRAY[@]} -ne ${#ID_ARRAY[@]} ]] ; then
    error_exit "number of bam prefixes does not match number of out directories specified. stopping."
 fi
 
