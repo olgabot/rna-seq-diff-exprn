@@ -74,47 +74,95 @@ echo 'BASE_OUT_DIR=$BASE_OUT_DIR' | cat - >> $COMMON_VARS
 COND=$3
 echo 'COND=$COND' | cat - >> $COMMON_VARS
 
-COND_WITHOUT_COMMENTS=`sed -e 's/#.*//' -e 's/[ ^I]*$//' -e '/^$/ d' < $COND`
+COND_WITHOUT_COMMENTS=$COND.without_comments
+sed -e 's/#.*//' -e 's/[ ^I]*$//' -e '/^$/ d' \
+    < $COND > $COND_WITHOUT_COMMENTS
 
 # The bam prefixes of the files you want to use (comma-separated)
-BAM_PREFIXES=`echo $COND_WITHOUT_COMMENTS | cut -f1 | tr "\n" ","`
+BAM_PREFIXES=`cut -f1 $COND_WITHOUT_COMMENTS | tr "\n" ","`
 echo 'BAM_PREFIXES=$BAM_PREFIXES' | cat - >> $COMMON_VARS
 
 # Sample identification for each sample (comma-separated)
-IDS=`echo $COND_WITHOUT_COMMENTS | cut -f2 | tr "\n" ","`
+IDS=`cut -f2 $COND_WITHOUT_COMMENTS | tr "\n" ","`
 echo 'IDS=$IDS' | cat - >> $COMMON_VARS
 
 # Treatment groups (comma-separated)
-TREATMENT_GROUPS=`echo $COND_WITHOUT_COMMENTS | cut -f3 | uniq | tr "\n" ","`
+TREATMENT_GROUPS=`cut -f3 $COND_WITHOUT_COMMENTS | uniq | tr "\n" ","`
 echo 'TREATMENT_GROUPS=$TREATMENT_GROUPS' | cat - >> $COMMON_VARS
 
 # To determine whether ChrY should be included or omitted
 # from the analyses, specify the gender of each sample
 # (comma-separated)
-GENDERS=`echo $COND_WITHOUT_COMMENTS | cut -f3 | tr "\n" ","` 
+GENDERS=`cut -f4 $COND_WITHOUT_COMMENTS | tr "\n" ","` 
 echo 'GENDERS=$GENDERS\n' | cat - >> $COMMON_VARS
 
-# GFF files that you want to use to estimate gene counts. 
+# GTF (Gene Transfer Format) files that you want to use to estimate gene 
+# counts. 
 # used by: HTSEQ and DEXSeq (differential exon usage)
-GFF=$4
+# GTF files are a subset of GFF (General Feature Format) files
+# To get one of these files, do the following steps:
+# (there is probably a similar method to use the ENSEMBL website,
+# but I am not familiar with it so I am giving these instructions that
+# I myself have followed many times)
+# 1. Go to http://genome.ucsc.edu/cgi-bin/hgTables
+# 2. Choose your clade and organism of interest
+# 3. Choose these settings:
+#   group: "Genes and Gene Prediction Tracks"
+#   track: (whatever you want, but these instructions are built on using
+#   "UCSC Genes." You can use Ensembl or other transcript IDs but then
+#   you will need to choose different columns from the kgXref file for
+#   the )
+#   table: "knownGene"
+#   region: "genome"
+#   output format: "GTF - gene transfer format"
+# 4. output file: (whatever you want, but I suggest something informative
+#    like hg19_ucsc_genes.gtf)
+#    Make sure to include the file extension (.gtf) in the filename
+# 5. Press "get output"
+#    --> A file will be downloaded to your "Downloads" folder
+GTF=$4
 echo 'GFF=$GFF' | cat - >> $COMMON_VARS
 
-# BED files that you want to use to estimate gene counts.
+# GTF (Gene Transfer Format) file specially formatted for use with
+# DEXSeq, which measures differential exon usage. To create this file,
+# You need a GTF file (which can be obtained as described in the GTF
+# section), and then use the script included in rna-seq-diff-exprn/scripts/external/dexseq_prepare_annotation.py:
+#  $ python2.7 scripts/external/dexseq_prepare_annotation.py test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_dexseq.gtf
+
+DEXSEQ_GTF=$5
+
+# 
+# Tab-delimited file
+#   $ cut -f 1,5 < hg19_kgXref.txt | sed 1d > hg19_id_symbol.txt
+TXPTID_SYMBOL=$6
+
+# BED (Browser Extensible Data) files that you want to use to estimate 
+# gene counts.
 # Used by: bedtools coverage
-BED=$5
+#
+BED=$7
 echo 'BED=$BED' | cat - >> $COMMON_VARS
+
+# "Genome" file which really just says how long each chromosome is
+# An example file is included in the test-data/human.hg19.genome, 
+# but you can also use ones shipped with BEDTools. On my machine, these 
+# files are located in ~/packages/BEDTools/genomes:
+#  $ ls ~/packages/BEDTools-Version-2.16.2/genomes/
+#   human.hg18.genome human.hg19.genome mouse.mm8.genome  mouse.mm9.genome
+# 
+GENOME=$7
 
 # Expression results output location
 # Will create coverageBed and HTSeq folders in this location,
 # which will have the combined gene expression tables
 # in the order specified by the conditions file (COND)
-EXPR_DIR=$6
+EXPR_DIR=$BASE_OUT_DIR/expression
 echo 'EXPR_DIR=$EXPR_DIR' | cat - >> $COMMON_VARS
 
 # Circos results output location
 # Will create a folder for each sample in this location
 # (each folder's name determined by sample id)
-CIRCOS_OUT_DIR=$7
+CIRCOS_OUT_DIR=$BASE_OUT_DIR/circos
 echo 'CIRCOS_OUT_DIR=$CIRCOS_OUT_DIR' | cat - >> $COMMON_VARS
 
 # Create a script of commonly used variables to avoid
@@ -146,13 +194,16 @@ echo 'NUM_GROUPS=$NUM_GROUPS\n' | cat - >> $COMMON_VARS
 # Get number of files to iterate over
 # Subtract one because bash uses 0-based indexing,
 # while awk is 1-based
-echo '# Array variables' | cat - >> $COMMON_VARS
-END=`awk -F"," '{print NF-1}' <$BAM_PREFIXES`
-echo 'END=$END' | cat - >> $COMMON_VARS
+
 
 # Make arrays for easy access to corresponding
 # bam files / out directories / ids
 declare -a BAM_PREFIX_ARRAY=( `echo $BAM_PREFIXES | tr "," " "`)
+
+echo '\n# Array variables' | cat - >> $COMMON_VARS
+END={#BAM_PREFIX_ARRAY[@]} #`awk -F"," '{print NF-1}' <$BAM_PREFIXES`
+echo 'END=$END' | cat - >> $COMMON_VARS
+
 echo 'declare -a BAM_PREFIX_ARRAY=$BAM_PREFIX_ARRAY' \
     | cat - >> $COMMON_VARS
 

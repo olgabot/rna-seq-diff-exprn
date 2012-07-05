@@ -5,11 +5,12 @@
 ## This file is based on the columns, so if you add extraneous columns, they will not be read into the program (ie you can add comments)
 ####
 # This is a tab-delimited file, with the following columns:
-# bam_prefix	id	group	gender	read_type
+# bam_prefix	id	group	gender	read_type	strandedness
 ## id = (user-defined, could be anything)
 ## group = (user-defined, could be anything)
 ## gender = male --or-- female
 ## read_type = single_read --or-- paired_end
+## strandedness = whether the cDNA library preparation was strand-specific or not. values = "strand_specific" --or-- "not_strand_specific"
 test-data/GSM721117_mctp_20F0GAAXX_1	LNCaP_1	LNCaP	male	single_read	# (This is a comment) Illumina
 test-data/GSM721119_mctp_20F0GAAXX_2	LNCaP_2	LNCaP	male	single_read	# Illumina
 test-data/GSM721118_mctp_20F0GAAXX_3	LNCaP_3	LNCaP	male	single_read
