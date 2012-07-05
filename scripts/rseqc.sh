@@ -16,10 +16,9 @@
 #$ -cwd
 #$ -q big.q
 #$ -S /bin/bash
-export PYTHONPATH=/share/apps/RSeQC/usr/local/lib/python2.7/site-packages:$PYTHONPATH
-export PATH=/share/apps/RSeQC/usr/local/bin:/share/apps/python-2.7/bin/:/share/apps/bin:$PATH
+# export PYTHONPATH=/share/apps/RSeQC/usr/local/lib/python2.7/site-packages:$PYTHONPATH
+# export PATH=/share/apps/RSeQC/usr/local/bin:/share/apps/python-2.7/bin/:/share/apps/bin:$PATH
 # RSEQC_BIN=/share/apps/RSeQC/usr/local/bin
-
 
 # BAM file that you want to do the analysis on
 BAM=$1

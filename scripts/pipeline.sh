@@ -128,7 +128,9 @@ echo 'GFF=$GFF' | cat - >> $COMMON_VARS
 # You need a GTF file (which can be obtained as described in the GTF
 # section), and then use the script included in rna-seq-diff-exprn/scripts/external/dexseq_prepare_annotation.py:
 #  $ python2.7 scripts/external/dexseq_prepare_annotation.py test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_dexseq.gtf
-
+# [The dollar sign `$' indicates a bash shell and shows that we are
+# using a command-line interface, as opposed to a command embedded
+# in source code such as this document.]
 DEXSEQ_GTF=$5
 
 # 
@@ -139,7 +141,26 @@ TXPTID_SYMBOL=$6
 # BED (Browser Extensible Data) files that you want to use to estimate 
 # gene counts.
 # Used by: bedtools coverage
-#
+# To get one of these files, do the following steps:
+# (there is probably a similar method to use the ENSEMBL website, but I 
+# am not familiar with it so I am giving these instructions that I myself
+# have followed many times and can help you out with if you are stuck)
+# 1. Go to http://genome.ucsc.edu/cgi-bin/hgTables
+# 2. Choose your clade and organism of interest
+# 3. Choose these settings:
+#   group: "Genes and Gene Prediction Tracks"
+#   track: (whatever you want, but these instructions are built on using
+#   "UCSC Genes." You can use Ensembl or other transcript IDs but then
+#   you will need to choose different columns from the kgXref file for
+#   the )
+#   table: "knownGene"
+#   region: "genome"
+#   output format: "BED - browser extensible data"
+# 4. output file: (whatever you want, but I suggest something informative
+#    like hg19_ucsc_genes.gtf)
+#    Make sure to include the file extension (.gtf) in the filename
+# 5. Press "get output"
+#    --> A file will be downloaded to your "Downloads" folder
 BED=$7
 echo 'BED=$BED' | cat - >> $COMMON_VARS
 
