@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -vx
 
 # Example run:
 # scripts/pipeline.sh test-results test-data/conditions.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome 1
@@ -164,13 +164,27 @@ TXPTID_SYMBOL=$6
 BED=$7
 echo 'BED=$BED' | cat - >> $COMMON_VARS
 
-# "Genome" file which really just says how long each chromosome is
+# "Genome" file which really just says how long each chromosome is.
 # An example file is included in the test-data/human.hg19.genome, 
 # but you can also use ones shipped with BEDTools. On my machine, these 
 # files are located in ~/packages/BEDTools/genomes:
 #  $ ls ~/packages/BEDTools-Version-2.16.2/genomes/
 #   human.hg18.genome human.hg19.genome mouse.mm8.genome  mouse.mm9.genome
-# 
+# As to how to create these files for non-mouse or human organisms,
+# my suggestion (while rather unwieldy) is to:
+# 1. Go to http://genome.ucsc.edu/cgi-bin/hgTables
+# 2. Choose your clade and organism of interest
+# 3. Choose these settings:
+#   group: "All Tables"
+#   table: "chromInfo"
+#   output format: "all fields from selected table"
+#   output file: (anything you want, but preferably something informative
+#   like platypus.ornAna1.genome)
+# 4. Press "get output"
+# 5. Remove the first line and the third column of the file, which you
+#    could do in Microsoft Excel (since this file will be comparatively
+#    small), or by using this shell command:
+#      $ cut -f 1,2 < platypus.ornAna1.genome | sed 1d > platypus.ornAna1.genome.fixed
 GENOME=$7
 
 # Expression results output location
@@ -211,26 +225,18 @@ echo 'NUM_GROUPS=$NUM_GROUPS\n' | cat - >> $COMMON_VARS
 
 
 ############## Begin scripting! ##############
-
-# Get number of files to iterate over
-# Subtract one because bash uses 0-based indexing,
-# while awk is 1-based
-
-
 # Make arrays for easy access to corresponding
 # bam files / out directories / ids
 declare -a BAM_PREFIX_ARRAY=( `echo $BAM_PREFIXES | tr "," " "`)
 
 echo '\n# Array variables' | cat - >> $COMMON_VARS
+
+# Get number of files to iterate over
 END={#BAM_PREFIX_ARRAY[@]} #`awk -F"," '{print NF-1}' <$BAM_PREFIXES`
 echo 'END=$END' | cat - >> $COMMON_VARS
 
 echo 'declare -a BAM_PREFIX_ARRAY=$BAM_PREFIX_ARRAY' \
     | cat - >> $COMMON_VARS
-
-#declare -a OUT_DIR_ARRAY=( `echo $OUT_DIRS | tr "," " "`)
-#echo 'declare -a OUT_DIR_ARRAY=$OUT_DIR_ARRAY' \
-#    | cat - >> $COMMON_VARS
 
 declare -a ID_ARRAY=( `echo $IDS | tr "," " "`)
 echo 'declare -a ID_ARRAY=$ID_ARRAY' \
@@ -247,9 +253,8 @@ echo 'declare -a GENDER_ARRAY=$GENDER_ARRAY' \
 if [[${#BAM_PREFIX_ARRAY[@]} -ne ${#ID_ARRAY[@]}]] ; then
    error_exit "number of bam prefixes does not match number of out directories specified. stopping."
 fi
-#if( ${#ID_ARRAY[@]} ne ${#OUT_DIR_ARRAY[@]} ); do
-#   error_exit "number of out directories does not match number of ids specified. stopping."
-#fi
+
+exit
 
 for ((i=0;i<=$END;++i)); do
     BAM_PREFIX=${BAM_PREFIX_ARRAY[$i]}
