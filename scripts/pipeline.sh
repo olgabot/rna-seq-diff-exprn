@@ -271,8 +271,7 @@ for ((i=0;i<=$END;++i)); do
 #    b. Make circos plot of coverage for this sample
 # 3. Estimates differential exon usage counts using
 #    dexseq_counts.py
-    $SCRIPTS_DIR/gene_counts.sh \
-	   $BAM_PREFIX $OUT_DIR \
+    $SCRIPTS_DIR/gene_counts.sh $BAM_PREFIX $OUT_DIR \
 	   $GENDER $ID $COMMON_VARS
 done
 
