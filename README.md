@@ -42,7 +42,7 @@ installed.
    Is where I personally installed circos. On the server that I use, for
    example, it is installed in:
      /share/apps/circos-0.60/bin
-   So then my ~/.bashrc file would look like:
+   So then my ~/.bashrc file on the server looks like:
      PATH=$PATH:/share/apps/circos-0.60/bin ; export PATH
 7. R, 2.14.2 or later
    http://www.r-project.org/
