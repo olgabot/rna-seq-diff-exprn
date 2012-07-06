@@ -164,7 +164,7 @@ echo "DEXSEQ_GTF='$DEXSEQ_GTF'" | cat - >> $COMMON_VARS
 #    Make sure to include the file extension (.gtf) in the filename
 # 5. Press "get output"
 #    --> A file will be downloaded to your "Downloads" folder
-BED="$6"
+BED="$5"
 echo "BED='$BED'" | cat - >> $COMMON_VARS
 
 # Tab-delimited file with the transcript ID in column 1 and the gene
@@ -212,7 +212,7 @@ echo "BED='$BED'" | cat - >> $COMMON_VARS
 #    Also, if you try to make your input and output files the same, the 
 #    commands may get confused and you could lose your original data. :(
 #      $ cut -f 1,5 < hg19_kgXref.txt | sed 1d > hg19_id_symbol.txt
-TXPTID_SYMBOL="$5"
+TXPTID_SYMBOL="$6"
 echo "TXPTID_SYMBOL='$TXPTID_SYMBOL'" | cat - >> $COMMON_VARS
 
 # "Genome" file which really just says how long each chromosome is.
