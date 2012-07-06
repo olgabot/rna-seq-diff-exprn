@@ -65,6 +65,11 @@ CIRCOS_BIN="`which circos`"
 echo "CIRCOS_BIN='$CIRCOS_BIN'" | cat - >> $COMMON_VARS
 
 # Finally, write the base out directory
+if [[ $BASE_OUT_DIR != /* ]]; then
+    # if $BASE_OUT_DIR is not an absolute path (starts with `/'), 
+    # then make it one
+    BASE_OUT_DIR=`pwd`/$BASE_OUT_DIR
+fi
 echo "BASE_OUT_DIR='$BASE_OUT_DIR'" | cat - >> $COMMON_VARS
 
 
@@ -128,6 +133,10 @@ echo "\n# Gene and species-specific variables" | cat - >> $COMMON_VARS
 # 5. Press "get output"
 #    --> A file will be downloaded to your "Downloads" folder
 GTF="$3"
+if [[ $GTF != /* ]]; then
+    # if $GTF is not an absolute path (starts with `/'), then make it one
+    GTF=`pwd`/$GTF
+fi
 echo "GTF='$GTF'" | cat - >> $COMMON_VARS
 
 # GTF (Gene Transfer Format) file specially formatted for use with
@@ -139,6 +148,11 @@ echo "GTF='$GTF'" | cat - >> $COMMON_VARS
 # using a command-line interface, as opposed to a command embedded
 # in source code such as this document.]
 DEXSEQ_GTF="$4"
+if [[ $DEXSEQ_GTF != /* ]]; then
+    # if $DEXSEQ_GTF is not an absolute path (starts with `/'), 
+    # then make it one
+    DEXSEQ_GTF=`pwd`/$DEXSEQ_GTF
+fi
 echo "DEXSEQ_GTF='$DEXSEQ_GTF'" | cat - >> $COMMON_VARS
 
 # BED (Browser Extensible Data) files that you want to use to estimate 
@@ -164,7 +178,15 @@ echo "DEXSEQ_GTF='$DEXSEQ_GTF'" | cat - >> $COMMON_VARS
 #    Make sure to include the file extension (.gtf) in the filename
 # 5. Press "get output"
 #    --> A file will be downloaded to your "Downloads" folder
-BED="$5"
+
+# Need to remove any commented lines or else rseqc gets mad
+BED=$5.without_comments
+sed -e 's/^track name.*//' -e '/^$/ d' \
+    <$5 >$BED
+if [[ $BED != /* ]]; then
+    # if $BED is not an absolute path (starts with `/'), then make it one
+    BED=`pwd`/$BED
+fi
 echo "BED='$BED'" | cat - >> $COMMON_VARS
 
 # Tab-delimited file with the transcript ID in column 1 and the gene
@@ -237,6 +259,11 @@ echo "TXPTID_SYMBOL='$TXPTID_SYMBOL'" | cat - >> $COMMON_VARS
 #    small), or by using this shell command:
 #      $ cut -f 1,2 < platypus.ornAna1.genome | sed 1d > platypus.ornAna1.genome.fixed
 GENOME="$7"
+if [[ $GENOME != /* ]]; then
+    # if $GENOME is not an absolute path (starts with `/'), 
+    # then make it one
+    GENOME=`pwd`/$GENOME
+fi
 echo "GENOME='$GENOME'" | cat - >> $COMMON_VARS
 
 echo "\n# Number of groups to make from the TREATMENT_GROUPS" \
@@ -316,6 +343,27 @@ for ((i=0;i<=$END;++i)); do
     GENDER=${GENDER_ARRAY[$i]}
     RSEQC_OUT_DIR=$BASE_OUT_DIR/rseqc/$ID
 
+    if [[ $BAM_PREFIX != /* ]]; then
+        # If the $BAM_PREFIX does not start with a `/' then it is not
+        # an absolute path and we need to prepend the current directory
+        # to the $BAM_PREFIX
+        BAM_PREFIX=`pwd`/$BAM_PREFIX
+        BAM_PREFIX_ARRAY[$i]=$BAM_PREFIX
+        echo BAM_PREFIX: $BAM_PREFIX
+    fi
+
+    # if [[ $RSEQC_OUT_DIR != /* ]]; then
+    #     # If the $BAM_PREFIX does not start with a `/' then it is not
+    #     # an absolute path and we need to prepend the current directory
+    #     # to the $BAM_PREFIX
+    #     RSEQC_OUT_DIR=`pwd`/$RSEQC_OUT_DIR
+    #     echo RSEQC_OUT_DIR: $RSEQC_OUT_DIR
+    # fi    
+
+    # Debugging for now, remove the rseqc files before executing
+    # so that only the new ones appear in this folder:
+    rm $RSEQC_OUT_DIR/*
+
     if [[ ! -d $RSEQC_OUT_DIR ]]; then
         # If this directory doesn't yet exist, make this directory
         # recursively (`-p') to make all the in-between directories
@@ -323,9 +371,13 @@ for ((i=0;i<=$END;++i)); do
         mkdir -p $RSEQC_OUT_DIR
     fi
 
+
+
     # Do quality control on this via 
     # RNA-Seq-QualityControl, aka RSeqQC:
+    pushd $RSEQC_OUT_DIR
     $SCRIPTS_DIR/rseqc.sh $BAM_PREFIX.bam $RSEQC_OUT_DIR $BED
+    popd
 
     # Detect structural variants via SVDetect for this sample
 
