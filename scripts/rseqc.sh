@@ -35,10 +35,11 @@ PREFIX=$OUT_DIR/rseqc
 
 echo 'executing: clipping_profile.py' ; clipping_profile.py --input-file $BAM --out-prefix $PREFIX
 echo 'executing: geneBody_coverage.py' ; geneBody_coverage.py --input-file $BAM --refgene $BED --out-prefix $PREFIX
+echo 'executing: infer_experiment.py' ; infer_experiment.py --input-file $BAM --refgene $BED >$PREFIX.infer_experiment.txt
 echo 'executing: inner_distance.py' ; inner_distance.py --input-file $BAM --refgene $BED --out-prefix $PREFIX
-echo 'executing: junction_annotation.py' ; junction_annotation.py --input-file $BAM --refgene $BED --out-prefix $PREFIX
+echo 'executing: junction_annotation.py' ; junction_annotation.py --input-file $BAM --refgene $BED --out-prefix $PREFIX >$PREFIX.junction_annotation.txt
 echo 'executing: junction_saturation.py' ; junction_saturation.py --input-file $BAM --refgene $BED --out-prefix $PREFIX
-echo 'executing: read_distribution.py' ; read_distribution.py --input-file $BAM --refgene $BED > $PREFIX\_read_distribution.txt
+echo 'executing: read_distribution.py' ; read_distribution.py --input-file $BAM --refgene $BED > $PREFIX.read_distribution.txt
 echo 'executing: read_duplication.py' ; read_duplication.py --input-file $BAM --out-prefix $PREFIX
 echo 'executing: read_GC.py' ; read_GC.py --input-file $BAM --out-prefix $PREFIX
 echo 'executing: read_NVC.py' ; read_NVC.py --input-file $BAM --out-prefix $PREFIX

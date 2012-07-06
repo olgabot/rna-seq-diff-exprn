@@ -1,7 +1,7 @@
-#!/bin/sh -x
+#!/bin/sh
 
 # Example run:
-# scripts/pipeline.sh test-results test-data/conditions.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome 1
+# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome 1
 # A bash version of above:
 # scripts/pipeline.sh $OUT_DIR $CONDITIONS $GTF $DEXSEQ_GTF $BED $TXPTID_SYMBOL $GENOME $NUM_GROUPS
 
@@ -42,6 +42,11 @@ if [[ ! -d $BASE_OUT_DIR ]]; then
     mkdir -p $BASE_OUT_DIR
 fi
 
+# If BASE_OUT_DIR is not an absolute path (starts with `/'), make it so
+if [[ $BASE_OUT_DIR != /* ]]; then
+    BASE_OUT_DIR=`pwd`/$BASE_OUT_DIR
+fi
+
 # Save all the variables into a common variable .sh file
 # Variables that are specific to a single sample (ie a BAM
 # file or an ID) are NOT stored, but the comma-separated
@@ -65,11 +70,6 @@ CIRCOS_BIN="`which circos`"
 echo "CIRCOS_BIN='$CIRCOS_BIN'" | cat - >> $COMMON_VARS
 
 # Finally, write the base out directory
-if [[ $BASE_OUT_DIR != /* ]]; then
-    # if $BASE_OUT_DIR is not an absolute path (starts with `/'), 
-    # then make it one
-    BASE_OUT_DIR=`pwd`/$BASE_OUT_DIR
-fi
 echo "BASE_OUT_DIR='$BASE_OUT_DIR'" | cat - >> $COMMON_VARS
 
 
@@ -179,8 +179,8 @@ echo "DEXSEQ_GTF='$DEXSEQ_GTF'" | cat - >> $COMMON_VARS
 # 5. Press "get output"
 #    --> A file will be downloaded to your "Downloads" folder
 
-# Need to remove any commented lines or else rseqc gets mad
-BED=$5.without_comments
+# Need to the first 'track name' line in a BED file or else rseqc gets mad
+BED=$5.without_track_name
 sed -e 's/^track name.*//' -e '/^$/ d' \
     <$5 >$BED
 if [[ $BED != /* ]]; then
@@ -337,7 +337,7 @@ if [[ ${#BAM_PREFIX_ARRAY[@]} -ne ${#ID_ARRAY[@]} ]] ; then
    error_exit "number of bam prefixes does not match number of out directories specified. stopping."
 fi
 
-for ((i=0;i<=$END;++i)); do
+for (( i = 0 ; i < $END ; ++i )); do
     BAM_PREFIX=${BAM_PREFIX_ARRAY[$i]}
     ID=${ID_ARRAY[$i]}
     GENDER=${GENDER_ARRAY[$i]}
@@ -362,7 +362,7 @@ for ((i=0;i<=$END;++i)); do
 
     # Debugging for now, remove the rseqc files before executing
     # so that only the new ones appear in this folder:
-    rm $RSEQC_OUT_DIR/*
+    # rm $RSEQC_OUT_DIR/*  ------------ Debugging
 
     if [[ ! -d $RSEQC_OUT_DIR ]]; then
         # If this directory doesn't yet exist, make this directory
@@ -371,17 +371,15 @@ for ((i=0;i<=$END;++i)); do
         mkdir -p $RSEQC_OUT_DIR
     fi
 
-
-
     # Do quality control on this via 
     # RNA-Seq-QualityControl, aka RSeqQC:
-    pushd $RSEQC_OUT_DIR
-    $SCRIPTS_DIR/rseqc.sh $BAM_PREFIX.bam $RSEQC_OUT_DIR $BED
-    popd
+    # pushd $RSEQC_OUT_DIR ------------ BEGIN Debugging
+    # $SCRIPTS_DIR/rseqc.sh $BAM_PREFIX.bam $RSEQC_OUT_DIR $BED
+    # popd ------------ END Debugging
 
     # Detect structural variants via SVDetect for this sample
 
-# This ...gene_counts.sh script does:
+# This gene_counts.sh script does:
 # 1. Estimate gene counts from BAM via bedtools and HTSeq
 # 2. Calls another script to:
 #    a. Estimate genome-wide coverage via bedtools and HTSeq

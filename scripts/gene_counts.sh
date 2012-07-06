@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/sh -x
 
 # Author: Olga Botvinnik (olga.botvinnik@gmail.com)
 # Date: 21 June 2012
 # Purpose of this script: Finds gene- and genome-wide counts
 # of a BED file using both bedtools and HTSeq
 #
-# This ...gene_counts.sh script does:
+# This gene_counts.sh script does:
 # 1. Estimate gene counts from BAM via bedtools and HTSeq
 # 2. Calls another script to:
 #    a. Estimate genome-wide coverage via bedtools and HTSeq
@@ -14,12 +14,12 @@
 #    dexseq_counts.py (does not perform DEXSeq analysis)
 
 BAM_PREFIX=$1
-OUT_DIR=$2
-GENDER=$3
+# OUT_DIR=$2
+GENDER=$2
 
 # Need the ID for circos file creation/plotting
-ID=$4
-COMMON_VARS=$5
+ID=$3
+COMMON_VARS=$4
 
 # Initialize common variables
 source $COMMON_VARS

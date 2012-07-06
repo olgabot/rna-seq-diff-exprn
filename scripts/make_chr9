@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# 
+# Created by:  on 
+# Purpose of this script: Makes chr9-only bam files from the bam files in the current directory
+# Input(s): 
+# Output(s):
+
+
+for F in `ls *.bam`; do
+	F_PREFIX=`tr ".bam" "" $F`
+	CHR9=$F_PREFIX\_chr9.bam
+	samtools view $F | grep chr9 | samtools -S > $CHR9
+	samtools view -H $F | samtools reheader - $CHR9
+done
