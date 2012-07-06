@@ -29,7 +29,7 @@ installed.
 5. Perl 5.8.x or newer (for Circos, #6)
    Linux and Mac users: http://www.perl.org/get.html
    Windows users: http://strawberryperl.com/
-6. Circos, version 0.60 or later
+6. Circos, version 0.60 or later (for plotting genome coverage data)
    Note: Circos has a number of Perl package dependencies that take some
    time to make sure they are all properly installed on your system.
    http://circos.ca/software/download/circos

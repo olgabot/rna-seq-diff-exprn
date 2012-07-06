@@ -1,4 +1,4 @@
-#!/bin/sh -vx
+#!/bin/sh -x
 
 # Example run:
 # scripts/pipeline.sh test-results test-data/conditions.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome 1
@@ -109,7 +109,7 @@ echo 'GENDERS=$GENDERS\n' | cat - >> $COMMON_VARS
 #   track: (whatever you want, but these instructions are built on using
 #   "UCSC Genes." You can use Ensembl or other transcript IDs but then
 #   you will need to choose different columns from the kgXref file for
-#   the )
+#   the TXPTID_SYMBOL file, so I recommend sticking with UCSC IDs for now)
 #   table: "knownGene"
 #   region: "genome"
 #   output format: "GTF - gene transfer format"
@@ -131,9 +131,51 @@ echo 'GFF=$GFF' | cat - >> $COMMON_VARS
 # in source code such as this document.]
 DEXSEQ_GTF=$4
 
-# 
-# Tab-delimited file
-#   $ cut -f 1,5 < hg19_kgXref.txt | sed 1d > hg19_id_symbol.txt
+# Tab-delimited file with the transcript ID in column 1 and the gene
+# symbols you'd like to use in column 2, without a header line. You can
+# get one of these files by:
+# 1. Go to http://genome.ucsc.edu/cgi-bin/hgTables
+# 2. Choose your clade and organism of interest
+# 3. Choose these settings:
+#   group: "Genes and Gene Prediction Tracks"
+#   track: (whatever you want, but these instructions are built on using
+#   "UCSC Genes." You can use Ensembl or other transcript IDs but then
+#   you will need to choose different columns from the kgXref file for
+#   the TXPTID_SYMBOL file, so I recommend sticking with UCSC IDs for now)
+#   table: "kgXref"
+#   region: "genome"
+#   output format: "GTF - gene transfer format"
+# 4. output file: (whatever you want, but I suggest something informative
+#    like hg19_kgXref.txt)
+#    Make sure to include the file extension (.gtf) in the filename
+# 5. Press "get output"
+# 6. Now you need to take an extra step to get just the UCSC IDs, 
+#    e.g. uc002gig.1 (column 1 in the kgXref file) and the gene symbols,
+#    e.g. TP53  (column 5 in the kgXref file), a known tumor suppressor 
+#    gene.
+#    You could do this in Microsoft Excel, but the human file
+#    (for example) has 80,923 lines in it and will crash Excel. For 
+#    organisms with fewer documented genes, using Excel to push columns 
+#    around may be just fine.
+#    The Linux/UNIX (lovingly called *NIX) commands to take columns is 
+#    called "cut" (there is also "paste" to put together columns from 
+#    different files but that's out of the scope of what we're doing here)
+#    We want columns 1 and 5 (the UCSC ID and the gene symbol - 
+#    take a peek at the file by typing "head hg19_kgXref.txt" on the 
+#    command line in the directory - this will show the first 10 lines of 
+#    the file), so we'll say "cut -f 1,5" where the "-f" indicates the 
+#    "fields" we want to "cut." Then we use "sed 1d" to skip the first 
+#    line (skipping more than one line has a slighly different command,
+#    my favorite Sed tutorial is: http://www.grymoire.com/Unix/Sed.html
+#    if you're interested in learning more). And as before, the "<" 
+#    indicates the input file, the "|" indicates that the output of
+#    the previous command is treated as input to the next command,
+#    and the ">" indicates the output file. Note that we created a *new*
+#    file and did not overwrite the old one. In general, it is best 
+#    practices to create a new file rather than overwrite the old one.
+#    Also, if you try to make your input and output files the same, the 
+#    commands may get confused and you could lose your original data. :(
+#      $ cut -f 1,5 < hg19_kgXref.txt | sed 1d > hg19_id_symbol.txt
 TXPTID_SYMBOL=$5
 
 # BED (Browser Extensible Data) files that you want to use to estimate 
@@ -150,7 +192,7 @@ TXPTID_SYMBOL=$5
 #   track: (whatever you want, but these instructions are built on using
 #   "UCSC Genes." You can use Ensembl or other transcript IDs but then
 #   you will need to choose different columns from the kgXref file for
-#   the )
+#   the TXPTID_SYMBOL file, so I recommend sticking with UCSC IDs for now)
 #   table: "knownGene"
 #   region: "genome"
 #   output format: "BED - browser extensible data"
@@ -159,8 +201,8 @@ TXPTID_SYMBOL=$5
 #    Make sure to include the file extension (.gtf) in the filename
 # 5. Press "get output"
 #    --> A file will be downloaded to your "Downloads" folder
-BED=$6
-echo 'BED=$BED' | cat - >> $COMMON_VARS
+BED='$6'
+echo "BED='$BED'" | cat - >> $COMMON_VARS
 
 # "Genome" file which really just says how long each chromosome is.
 # An example file is included in the test-data/human.hg19.genome, 
@@ -189,8 +231,8 @@ GENOME=$7
 # Will create coverageBed and HTSeq folders in this location,
 # which will have the combined gene expression tables
 # in the order specified by the conditions file (COND)
-EXPR_DIR=$BASE_OUT_DIR/expression
-echo 'EXPR_DIR=$EXPR_DIR' | cat - >> $COMMON_VARS
+EXPRN_DIR=$BASE_OUT_DIR/expression
+echo 'EXPRN_DIR=$EXPRN_DIR' | cat - >> $COMMON_VARS
 
 # Circos results output location
 # Will create a folder for each sample in this location
@@ -201,7 +243,7 @@ echo 'CIRCOS_OUT_DIR=$CIRCOS_OUT_DIR' | cat - >> $COMMON_VARS
 # Create a script of commonly used variables to avoid
 # sending them everywhere
 
-if [[${#*} > 7]]; then
+if [[ ${#*} > 7 ]]; then
 ########## Only used if specified ##############
 # number of groups to create for each condition group
 # e.g. in the example above, if you specify 2, you will
@@ -271,7 +313,7 @@ for ((i=0;i<=$END;++i)); do
 #    b. Make circos plot of coverage for this sample
 # 3. Estimates differential exon usage counts using
 #    dexseq_counts.py
-    $SCRIPTS_DIR/gene_counts.sh $BAM_PREFIX $OUT_DIR \
+    $SCRIPTS_DIR/gene_counts.sh $BAM_PREFIX $EXPRN_OUT_DIR \
 	   $GENDER $ID $COMMON_VARS
 done
 
