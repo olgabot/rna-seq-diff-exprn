@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh 
 
 # Example run:
 # scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome 1
@@ -106,6 +106,9 @@ echo "TREATMENT_GROUPS='$TREATMENT_GROUPS'" | cat - >> $COMMON_VARS
 # (comma-separated)
 GENDERS=`cut -f4 $COND_WITHOUT_COMMENTS | tr "\n" "," | sed 's:,$::'` 
 echo "GENDERS='$GENDERS'" | cat - >> $COMMON_VARS
+
+STRAND_SPECIFICITIES=`cut -f6 $COND_WITHOUT_COMMENTS | tr "\n" "," | sed 's:,$::'` 
+echo "STRAND_SPECIFICITIES='$STRAND_SPECIFICITIES'" | cat - >> $COMMON_VARS
 
 echo "\n# Gene and species-specific variables" | cat - >> $COMMON_VARS
 # GTF (Gene Transfer Format) files that you want to use to estimate gene 
@@ -321,26 +324,54 @@ echo "END=$END" | cat - >> $COMMON_VARS
 echo "BAM_PREFIX_ARRAY=( ${BAM_PREFIX_ARRAY[@]} )" \
     | cat - >> $COMMON_VARS
 
-declare -a ID_ARRAY=( `echo $IDS | tr "," " "`)
+ID_ARRAY=( `echo $IDS | tr "," " "`)
 echo "ID_ARRAY=( ${ID_ARRAY[@]} )" \
     | cat - >> $COMMON_VARS
 
-declare -a GROUPS_ARRAY=( `echo $TREATMENT_GROUPS | tr "," " "` )
+GROUPS_ARRAY=( `echo $TREATMENT_GROUPS | tr "," " "` )
 echo "GROUPS_ARRAY=( ${GROUPS_ARRAY[@]} )" \
     | cat - >> $COMMON_VARS
 
-declare -a GENDER_ARRAY=( `echo $GENDERS | tr "," " "`)
+GENDER_ARRAY=( `echo $GENDERS | tr "," " "`)
 echo "GENDER_ARRAY=( ${GENDER_ARRAY[@]} )" \
     | cat - >> $COMMON_VARS
+
+STRAND_ARRAY=( `echo $STRAND_SPECIFICITIES | tr "," " "`)
+echo "STRAND_ARRAY=( ${STRAND_ARRAY[@]} )" \
+    | cat - >> $COMMON_VARS
+
 
 if [[ ${#BAM_PREFIX_ARRAY[@]} -ne ${#ID_ARRAY[@]} ]] ; then
    error_exit "number of bam prefixes does not match number of out directories specified. stopping."
 fi
 
+###### Some more variables for gene counts files
+COUNTS_BED=bedtools_gene_counts.txt
+echo "COUNTS_BED='$COUNTS_BED'" | cat - >> $COMMON_VARS
+
+COUNTS_HTSEQ_PREFIX=htseq_gene_counts
+COUNTS_HTSEQ=$COUNTS_HTSEQ_PREFIX.txt
+echo "COUNTS_HTSEQ='$COUNTS_HTSEQ'" | cat - >> $COMMON_VARS
+echo "COUNTS_HTSEQ_PREFIX='$COUNTS_HTSEQ_PREFIX'" | cat - >> $COMMON_VARS
+
+## More variables for genome-wide counts
+COVERAGE_HTSEQ_PREFIX=htseq_genome_coverage
+COVERAGE_HTSEQ=$COVERAGE_HTSEQ_PREFIX.wig
+echo "COVERAGE_HTSEQ_PREFIX='$COVERAGE_HTSEQ_PREFIX'" \
+    | cat - >> $COMMON_VARS
+echo "COVERAGE_HTSEQ='$COVERAGE_HTSEQ'" | cat - >> $COMMON_VARS
+
+COVERAGE_BEDTOOLS_PREFIX=bedtools_genome_coverage
+COVERAGE_BEDTOOLS=$COVERAGE_BEDTOOLS_PREFIX.txt
+echo "COVERAGE_BEDTOOLS_PREFIX='$COVERAGE_BEDTOOLS_PREFIX'" \
+    | cat - >> $COMMON_VARS
+echo "COVERAGE_BEDTOOLS='$COVERAGE_BEDTOOLS'" | cat - >> $COMMON_VARS
+
 for (( i = 0 ; i < $END ; ++i )); do
     BAM_PREFIX=${BAM_PREFIX_ARRAY[$i]}
     ID=${ID_ARRAY[$i]}
     GENDER=${GENDER_ARRAY[$i]}
+    STRAND=${STRAND_ARRAY[$i]}
     RSEQC_OUT_DIR=$BASE_OUT_DIR/rseqc/$ID
 
     if [[ $BAM_PREFIX != /* ]]; then
@@ -375,7 +406,7 @@ for (( i = 0 ; i < $END ; ++i )); do
     # RNA-Seq-QualityControl, aka RSeqQC:
     # pushd $RSEQC_OUT_DIR ------------ BEGIN Debugging
     # $SCRIPTS_DIR/rseqc.sh $BAM_PREFIX.bam $RSEQC_OUT_DIR $BED
-    # popd ------------ END Debugging
+    # popd ------------ END Debugging (uncomment this for the real thing)
 
     # Detect structural variants via SVDetect for this sample
 
@@ -387,11 +418,11 @@ for (( i = 0 ; i < $END ; ++i )); do
 # 3. Estimates differential exon usage counts using
 #    dexseq_counts.py
     $SCRIPTS_DIR/gene_counts.sh $BAM_PREFIX $EXPRN_OUT_DIR \
-	   $GENDER $ID $COMMON_VARS
+	   $GENDER $ID $STRAND $COMMON_VARS
 done
 
 # Merge the gene counts
-$SCRIPTS_DIR/make_expression_counts_table.sh \
+$SCRIPTS_DIR/make_gene_counts_table.sh \
     $COMMON_VARS
 
 # Do differential expression analysis

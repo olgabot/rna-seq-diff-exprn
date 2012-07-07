@@ -1,0 +1,8 @@
+uc022bdb.1				TRNA_Gln			transfer RNA Gln (anticodon TTG)		chr9.tRNA8-GlnTTG
+uc022bdr.1				TRNA_His			transfer RNA His (anticodon GTG)		chr9.tRNA7-HisGTG
+uc022bdx.1				TRNA_Met			transfer RNA Met (anticodon CAT)		chr9.tRNA1-MetCAT
+uc022bid.1				TRNA_Asp			transfer RNA Asp (anticodon GTC)		chr9.tRNA6-AspGTC
+uc022blp.1				TRNA_Arg			transfer RNA Arg (anticodon TCG)		chr9.tRNA2-ArgTCG
+uc022bmc.1				TRNA_Trp			transfer RNA Trp (anticodon CCA)		chr9.tRNA3-TrpCCA
+uc022bne.1				TRNA_Gln			transfer RNA Gln (anticodon CTG)		chr9.tRNA5-GlnCTG
+uc022boh.1				TRNA_Arg			transfer RNA Arg (anticodon TCT)		chr9.tRNA4-ArgTCT

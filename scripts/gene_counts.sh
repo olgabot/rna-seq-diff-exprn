@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 # Author: Olga Botvinnik (olga.botvinnik@gmail.com)
 # Date: 21 June 2012
@@ -14,15 +14,27 @@
 #    dexseq_counts.py (does not perform DEXSeq analysis)
 
 BAM_PREFIX=$1
-# OUT_DIR=$2
+# EXPRN_DIR=$2
 GENDER=$2
 
 # Need the ID for circos file creation/plotting
 ID=$3
-COMMON_VARS=$4
+STRAND=$4
+COMMON_VARS=$5
 
 # Initialize common variables
 source $COMMON_VARS
+
+BEDTOOLS_DIR=$EXPRN_DIR/bedtools/$ID
+HTSEQ_DIR=$EXPRN_DIR/htseq/$ID
+
+if [[ ! -d $BEDTOOLS_DIR ]]; then
+    mkdir -p $BEDTOOLS_DIR
+fi
+
+if [[ ! -d $HTSEQ_DIR ]]; then
+    mkdir -p $HTSEQ_DIR
+fi
 
 BAM=$BAM_PREFIX.bam
 echo "finding gene counts for" $BAM
@@ -50,9 +62,7 @@ samtools view -b $BAM | \
 #     and depth follow the complete B feature.
 
 
-COUNTS_BED=bedtools_gene_counts.txt
-echo 'COUNTS_BED=$COUNTS_BED' | cat - >> $COMMON_VARS
-THIS_COUNTS_BED=$OUT_DIR/$COUNTS_BED
+THIS_COUNTS_BED=$BEDTOOLS_DIR/$COUNTS_BED
 coverageBed_options='-counts -hist -d'
 
 bedtools coverage \
@@ -67,20 +77,25 @@ bedtools coverage \
 ############### executed from this script but works fine 
 ############### from the command line
 
-COUNTS_HTSEQ_PREFIX=htseq_counts
-COUNTS_HTSEQ=$COUNTS_HTSEQ_PREFIX.txt
-echo 'COUNTS_HTSEQ=$COUNTS_HTSEQ' | cat - >> $COMMON_VARS
+# COUNTS_HTSEQ_PREFIX=htseq_counts
 
-THIS_COUNTS_HTSEQ_PREFIX=$OUT_DIR/$COUNTS_HTSEQ_PREFIX
+# echo 'COUNTS_HTSEQ=$COUNTS_HTSEQ' | cat - >> $COMMON_VARS
+
 
 # 'sort -s -k 1,1': Sort SAM file by read name before HTSeq
 SAM_SORTED=$BAM_PREFIX\_sorted_read_name.sam
-if [ ! -e $SAM_SORTED ] ; then
+if [[ ! -e $SAM_SORTED ]] ; then
     samtools view $BAM | \
-	sort -s -k 1,1 >$SAM_SORTED
+        sort -s -k 1,1 >$SAM_SORTED
 fi
 
-HTSeqCount_options='--stranded=no'
+if [[ $STRAND == strand_specific ]]; then
+    HTSeqCount_options='--stranded=yes'
+else
+    HTSeqCount_options='--stranded=no'
+fi
+
+THIS_COUNTS_HTSEQ_PREFIX=$HTSEQ_DIR/$COUNTS_HTSEQ_PREFIX
 /usr/local/bin/htseq-count \
     $HTSeqCount_options $SAM_SORTED $GFF \
     >$THIS_COUNTS_HTSEQ_PREFIX.txt\
@@ -88,15 +103,16 @@ HTSeqCount_options='--stranded=no'
 ######## END gene count estimation via HTSeq #########
 
 
-$SCRIPTS_DIR/rna-seq_diff_exprn_pipeline_circos.sh \
-    $OUT_DIR $BAM $SAM_SORTED $GENDER $ID $COMMON_VARS
+$SCRIPTS_DIR/circos.sh \
+    $BAM $SAM_SORTED $GENDER $ID $COMMON_VARS
 
 
 ############# BEGIN DEXSeq counts ##################
-DEXSEQ_OUT=$OUT_DIR/dexseq_counts.txt
-if [ ! -e $DEXSEQ_OUT ]; then
+DEXSEQ_OUT=$EXPRN_DIR/dexseq_counts.txt
+if [[ ! -e $DEXSEQ_OUT ]]; then
     samtools view $BAM | \
-	dexseq_count.py --stranded=no \
-	$DEXSEQ_GFF - $DEXSEQ_OUT
+        python2.7 $SCRIPTS_DIR/external/dexseq_count.py \
+        $HTSeqCount_options \
+        $DEXSEQ_GTF - $DEXSEQ_OUT
 fi
 ########################

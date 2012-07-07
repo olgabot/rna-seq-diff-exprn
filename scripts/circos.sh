@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -xv
 
 # Author: Olga Botvinnik (olga.botvinnik@gmail.com)
 # Date: 21 June 2012
@@ -12,63 +12,67 @@
 # TODO: Need to consider male/female about whether to \
 # include ChrY or not
 
-OUT_DIR=$1
-BAM=$2
-SAM_SORTED=$3
-BED=$4
-GENDER=$5  # male or female
-ID=$6
-COMMON_VARS=$7
+# OUT_DIR=$1
+BAM=$1
+SAM_SORTED=$2
+# BED=$4
+GENDER=$3  # male or female
+ID=$4
+COMMON_VARS=$5
 
 source $COMMON_VARS
 
 echo "doing circos for" $BAM
 
-HTSEQ_PREFIX=$OUT_DIR/genome_coverage_htseq
-BEDTOOLS_PREFIX=$OUT_DIR/genome_coverage_bedtools
-COVERAGE_HTSEQ=$HTSEQ_PREFIX.wig
-COVERAGE_BEDTOOLS=$BEDTOOLS_PREFIX.txt
-if [ ! -e $COVERAGE_BEDTOOLS ] ; then
-    genomeCoverageBed -bg -ibam $RMDUP_BAM -g $GENOME \
-	>$COVERAGE_BEDTOOLS
+# Don't need to make these directories because
+# we already made them in the gene_counts.sh file
+BEDTOOLS_DIR=$EXPRN_DIR/bedtools/$ID
+HTSEQ_DIR=$EXPRN_DIR/htseq/$ID
+
+THIS_COVERAGE_BEDTOOLS=$BEDTOOLS_DIR/$COVERAGE_BEDTOOLS
+THIS_COVERAGE_HTSEQ=$HTSEQ_DIR/$COVERAGE_HTSEQ
+if [[ ! -e $THIS_COVERAGE_BEDTOOLS ]] ; then
+    genomeCoverageBed -bg -ibam $BAM -g $GENOME \
+	   >$THIS_COVERAGE_BEDTOOLS
 fi
 
 # Genome-wide coverage via HTSeq
+if [[ ! -e $THIS_COVERAGE_HTSEQ ]] ; then
+    $SCRIPTS_DIR/rna-seq_diff_exprn_pipeline_htseq_coverage.py \
+        -asam $SAM_SORTED -o $THIS_COVERAGE_HTSEQ
+fi
 
-if [ ! -e $COVERAGE_HTSEQ ] ; then
-# 'sort -s -k 1,1': Sort SAM file by read name before HTSeq
-$SCRIPTS_DIR/rna-seq_diff_exprn_pipeline_htseq_coverage.py \
-    -asam $SAM_SORTED -o $COVERAGE_HTSEQ
-
-COVERAGE_HTSEQ_CIRCOS=$OUT_DIR/genome_coverage_htseq.circos
-COVERAGE_BEDTOOLS_CIRCOS=$OUT_DIR/genome_coverage_bedtools.circos
+COVERAGE_BEDTOOLS_CIRCOS=$BEDTOOLS_DIR/$COVERAGE_BEDTOOLS_PREFIX.circos
+COVERAGE_HTSEQ_CIRCOS=$HTSEQ_DIR/$COVERAGE_HTSEQ_PREFIX.circos
 
 echo "making circos data out of coverage data (remove chrM and add stats at top)"
 # Make circos data out of coverage data (remove chrM and add stats at top)
-COVERAGE_BEDTOOLS_NO_CHR_M=$OUT_DIR/genome_coverage_bedtools.tmp
-COVERAGE_HTSEQ_NO_CHR_M=$OUT_DIR/genome_coverage_htseq.tmp
+COVERAGE_BEDTOOLS_NO_CHR_M=$BEDTOOLS_DIR/$COVERAGE_BEDTOOLS_PREFIX.no_chrM
+COVERAGE_HTSEQ_NO_CHR_M=$HTSEQ_DIR/$COVERAGE_HTSEQ_PREFIX.no_chrM
 
 # First line of HTSEQ is track type=BedGraph so need to remove first line,
 # but only in HTSeq genome coverage data. Also remove
 # all zero entries for faster circos processing.
-# Need to remove all mitochondrial DNA mapping for both
-grep -v chrM $COVERAGE_HTSEQ | sed 1d  \
+# Need to remove all mitochondrial (chromosome M, chrM) 
+# DNA mapping for both
+grep -v chrM $THIS_COVERAGE_HTSEQ | sed 1d  \
     | awk ' { if ( $4 > 0 ) print $0 } ' \
     > $COVERAGE_HTSEQ_NO_CHR_M
-grep -v chrM $COVERAGE_BEDTOOLS \
+grep -v chrM $THIS_COVERAGE_BEDTOOLS \
     > $COVERAGE_BEDTOOLS_NO_CHR_M
 
-if [ $GENDER -eq 'female' ] ;
-# Gender is female --> remove ChrY from all analyses
-then
+if [[ $GENDER == 'female' ]] ; then
+    # Gender is female --> remove ChrY from all analyses
     grep -v chrY $COVERAGE_HTSEQ_NO_CHR_M \
-	| awk ' { if ( $4 > 0 ) print $0 } ' \
-	> $COVERAGE_HTSEQ_NO_CHR_Y
+        | awk ' { if ( $4 > 0 ) print $0 } ' \
+        > $COVERAGE_HTSEQ_NO_CHR_Y
     grep -v chrY $COVERAGE_BEDTOOLS_NO_CHR_M \
-	> $COVERAGE_BEDTOOLS_NO_CHR_Y
+	   > $COVERAGE_BEDTOOLS_NO_CHR_Y
     mv $COVERAGE_HTSEQ_NO_CHR_Y $COVERAGE_HTSEQ_NO_CHR_M
     mv $COVERAGE_BEDTOOLS_NO_CHR_Y $COVERAGE_BEDTOOLS_NO_CHR_M
 fi
+
+# exit
 
 HTSEQ_STATS=`awk '{sumsq+=$4*$4; sum+=$4<0?-$4:$4} END {print int(sqrt(sumsq/NR - (sum/NR)**2)); print int(sum/NR)}' $COVERAGE_HTSEQ_NO_CHR_M | tr "\n" " " | awk ' { print "# coverage stats: mean="$1"  std dev="$2 } ' `
 # test:
@@ -115,10 +119,10 @@ R --slave --vanilla --quiet --no-save --args \
 ####### create circos files #######
 THIS_CIRCOS_OUT=$CIRCOS_OUT_DIR/$ID
 CIRCOS_TEMPLATE_DIR=/share/apps/circos_templates
-cp --recursive $CIRCOS_TEMPLATE_DIR/template_individual \
+cp -r $CIRCOS_TEMPLATE_DIR/template_individual \
     $THIS_CIRCOS_OUT
 
-if [ $GENDER -eq 'female' ] ;
+if [[ $GENDER -eq 'female' ]] ;
 # Gender is female --> remove ChrY from circos plot
 # by uncommenting the 'chromosomes = -chrY line
 then
@@ -126,27 +130,26 @@ then
 	$THIS_CIRCOS_OUT/etc/circos.conf
 fi
 
+# Make the upper limit of the plot be the mean + (2 * std dev)
 UPPER_LIMIT=`echo $BEDTOOLS_STATS | tr '=' " " | awk -F' ' '{ mu=$5 ; sigma=$8 ; print mu+2*sigma}'`
 
 # Divide UPPER_LIMIT by 100 to get minimum value change
 # Last awk command is a floor function
 MIN_VALUE_CHANGE=`echo $UPPER_LIMIT | awk '{print $1/100}' | awk -F. '{print $1}'`
 
-sed -i -e's/UPPER_LIMIT/"$UPPER_LIMIT"/' \
+sed -i '' -e's:UPPER_LIMIT:"$UPPER_LIMIT":' \
     $THIS_CIRCOS_OUT/etc/histogram.conf
 
-sed -i -e's/MIN_VALUE_CHANGE/"$MIN_VALUE_CHANGE"/' \
+sed -i '' -e's:MIN_VALUE_CHANGE:"$MIN_VALUE_CHANGE":' \
     $THIS_CIRCOS_OUT/etc/histogram.conf
 
-sed -i -e's/BEDTOOLS_COVERAGE/"$BEDTOOLS_CIRCOS"/' \
+sed -i '' -e's:BEDTOOLS_COVERAGE:"$BEDTOOLS_CIRCOS":' \
     $THIS_CIRCOS_OUT/etc/histogram.conf
 
-sed -i -e's/HTSEQ_HTSEQ/"$HTSEQ_CIRCOS"/' \
+sed -i '' -e's:HTSEQ_HTSEQ:"$HTSEQ_CIRCOS":' \
     $THIS_CIRCOS_OUT/etc/histogram.conf
 
 ####### execute circos #######
-
 $CIRCOS_BIN -conf $THIS_CIRCOS_OUT/etc/circos.conf \
     -outputdir $THIS_CIRCOS_OUT
-
 ####### end create circos files & execute circos #######
