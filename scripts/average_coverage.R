@@ -50,15 +50,15 @@ for(chr in chromosomes){
         print(paste("number of", interval,
                     "bp intervals for", chr,
                     numIntervals))
-        thisChrCoverage = apply(matrix(1:numIntervals), 1,
-          function(i){
-		thisIntervalMin = chrMin + (i-1)*interval
-		thisIntervalMax = min(chrMin + i*interval-1, chrMax)
-		thisIntervalInd = which((coverage[,2] > thisIntervalMin) &
-                  (coverage[,3] < thisIntervalMax))
-                return(c(chr,
-                  thisIntervalMin, thisIntervalMax,
-                  avg(coverage[thisIntervalInd,4])))
+  thisChrCoverage = apply(matrix(1:numIntervals), 1,
+    function(i){
+  		thisIntervalMin = chrMin + (i-1)*interval
+  		thisIntervalMax = min(chrMin + i*interval-1, chrMax)
+  		thisIntervalInd = which((coverage[,2] > thisIntervalMin) &
+                    (coverage[,3] < thisIntervalMax))
+      return(c(chr,
+        thisIntervalMin, thisIntervalMax,
+        avg(coverage[thisIntervalInd,4])))
           }
           )
         avgCoverage = cbind(avgCoverage, thisChrCoverage)

@@ -1,7 +1,15 @@
-#!/bin/sh 
+#!/bin/sh
+
+
+# TODO: Add "professional" getopts functionality:
+# - http://rsalveti.wordpress.com/2007/04/03/bash-parsing-arguments-with-getopts/
+# - http://aplawrence.com/Unix/getopts.html
 
 # Example run:
-# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome 1
+# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density.txt test-data/hg19_gc_content_circos.txt 1
+
+# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt 1
+
 # A bash version of above:
 # scripts/pipeline.sh $OUT_DIR $CONDITIONS $GTF $DEXSEQ_GTF $BED $TXPTID_SYMBOL $GENOME $NUM_GROUPS
 
@@ -26,6 +34,18 @@ function error_exit
     echo "${PROGNAME}: ${1:-"Unknown Error"}" 1>&2
     exit 1
 }
+
+# --- This function isn't working and I can't figure out why --- #
+# function make_absolute_path
+# {
+#     # Checks if this path name is an absolute path,
+#     # if it's not an absolute path, make it an absolute path
+#     if [[ $1 != /* ]]; then
+#         echo "`pwd`/$1" | sed"s:/$::"
+#     else
+#         echo $1
+#     fi
+# }
 ##### End error-handling ####
 
 
@@ -65,7 +85,8 @@ echo '# Globally used variables' | cat - >> $COMMON_VARS
 SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "SCRIPTS_DIR='$SCRIPTS_DIR'" | cat - >> $COMMON_VARS
 
-# 
+# Find where the circos binary is located
+# This location needs to be added to your path to be sensed
 CIRCOS_BIN="`which circos`"
 echo "CIRCOS_BIN='$CIRCOS_BIN'" | cat - >> $COMMON_VARS
 
@@ -237,7 +258,12 @@ echo "BED='$BED'" | cat - >> $COMMON_VARS
 #    Also, if you try to make your input and output files the same, the 
 #    commands may get confused and you could lose your original data. :(
 #      $ cut -f 1,5 < hg19_kgXref.txt | sed 1d > hg19_id_symbol.txt
-TXPTID_SYMBOL="$6"
+TXPTID_SYMBOL=`echo $6`
+if [[ $TXPTID_SYMBOL != /* ]]; then
+    # if $GENOME is not an absolute path (starts with `/'), 
+    # then make it one
+    TXPTID_SYMBOL=`pwd`/$TXPTID_SYMBOL
+fi
 echo "TXPTID_SYMBOL='$TXPTID_SYMBOL'" | cat - >> $COMMON_VARS
 
 # "Genome" file which really just says how long each chromosome is.
@@ -269,9 +295,69 @@ if [[ $GENOME != /* ]]; then
 fi
 echo "GENOME='$GENOME'" | cat - >> $COMMON_VARS
 
+# Karyotype file used by Circos, which specifies the chromosome lengths
+# The third column, the chromosome name, MUST use "chr1"-type notation,
+# and not the typical "hs1" notation for Homo sapiens chromosome 1
+# This is because bedtools and friends use chr1 notation, but I didn't
+# want to require the organism name and then lookup the conversion.
+# Presumably, you would have samples from all the same organism since
+# you are comparing gene expression and coverage across different
+# treatments, so I felt this was a safe assumption. I also didn't want
+# to lock you into ONLY using human data, because there are plenty
+# of interesting organisms out there
+KARYOTYPE="$8"
+if [[ $KARYOTYPE != /* ]]; then
+    # if $KARYOTYPE is not an absolute path (starts with `/'), 
+    # then make it one
+    KARYOTYPE=`pwd`/$KARYOTYPE
+fi
+echo "KARYOTYPE='$KARYOTYPE'" | cat - >> $COMMON_VARS
+
+# Gene density file, can be created with 
+# 1. Go to http://genome.ucsc.edu/cgi-bin/hgTables
+# 2. Choose your clade and organism of interest
+# 3. Choose these settings:
+#   group: "All Tables"
+#   table: "knownCanonical"
+#   - "knownCanonical" ignores multiple isoforms that are present in
+#      other knownGene files, so it's a more accurate representation
+#      of gene density. If you did this with knownGene, you'd get an
+#      overly optimistic view of gene density
+#   region: "genome"
+#   output format: "all fields from selected table"
+# 4. output file: (whatever you want, but I suggest something informative
+#    like hg19_ucsc_knownCanonical.tab)
+#    Make sure to include a file extension (.tab) in the filename
+#    .tab is used to show that the output is tab-delimited
+# 5. Press "get output"
+#    --> A file will be downloaded to your "Downloads" folder
+# Then run scripts/get_gene_density.R on the file to get the
+# gene density, like this:
+#   $ cd rna-seq-diff-exprn/test-data
+#   $ ../scripts/get_gene_density.R hg19_ucsc_knownCanonical.tab hg19_gene_density.tab
+GENE_DENSITY=$9
+if [[ $GENE_DENSITY != /* ]]; then
+    # if $GENE_DENSITY is not an absolute path (starts with `/'), 
+    # then make it one
+    GENE_DENSITY=`pwd`/$GENE_DENSITY
+fi
+echo "GENE_DENSITY='$GENE_DENSITY'" | cat - >> $COMMON_VARS
+
+# GC content file, can be created by converting a .wig (wiggle)
+# format file that's used for a genome browser into a circos format
+# using:
+# ../scripts/wig_to_circos.R hg19_gc1000Base.txt hg19_gc_content.circos
+GC_CONTENT="${10}"
+if [[ $GC_CONTENT != /* ]]; then
+    # if $GC_CONTENT is not an absolute path (starts with `/'), 
+    # then make it one
+    GC_CONTENT=`pwd`/$GC_CONTENT
+fi
+echo "GC_CONTENT='$GC_CONTENT'" | cat - >> $COMMON_VARS
+
 echo "\n# Number of groups to make from the TREATMENT_GROUPS" \
     | cat - >> $COMMON_VARS
-if [[ ${#*} > 7 ]]; then
+if [[ ${#*} > 10 ]]; then
 ########## Only used if specified ##############
 # number of groups to create for each condition group
 # e.g. in the example above, if you specify 2, you will
@@ -287,7 +373,7 @@ if [[ ${#*} > 7 ]]; then
 # 
 # If you don't want ANY groupings, omit this variable from the command 
 # line.
-NUM_GROUPS=$8
+NUM_GROUPS=${11}
 else
     NUM_GROUPS=0
 fi 
@@ -367,7 +453,23 @@ echo "COVERAGE_BEDTOOLS_PREFIX='$COVERAGE_BEDTOOLS_PREFIX'" \
     | cat - >> $COMMON_VARS
 echo "COVERAGE_BEDTOOLS='$COVERAGE_BEDTOOLS'" | cat - >> $COMMON_VARS
 
-for (( i = 0 ; i < $END ; ++i )); do
+# --- Find the htseq-counts file --- #
+echo 'looking for your htseq-counts file ... hopefully you installed HTSeq'
+
+# On Olga's machine for speed:
+HTSEQ_BIN=`find /opt/local -name 'htseq-count' -exec echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
+
+# HTSEQ_BIN=`find / -name 'htseq-count' -exec echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
+if [[ $HTSEQ_BIN == '' ]]; then
+    # If the search found no file
+    error_exit 'You do not have HTSeq installed.\nPlease visit http://www-huber.embl.de/users/anders/HTSeq/doc/overview.html and follow the instructions there on how to install the software package.'
+else
+    echo 'Way to go! You installed HTSeq. htseq-count is located:' $HTSEQ_BIN
+fi
+echo "HTSEQ_BIN='$HTSEQ_BIN'" | cat - >> $COMMON_VARS
+
+#for (( i = 0 ; i < $END ; ++i )); do
+for (( i = 0 ; i < 1 ; ++i )); do
     BAM_PREFIX=${BAM_PREFIX_ARRAY[$i]}
     ID=${ID_ARRAY[$i]}
     GENDER=${GENDER_ARRAY[$i]}

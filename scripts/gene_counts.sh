@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 # Author: Olga Botvinnik (olga.botvinnik@gmail.com)
 # Date: 21 June 2012
@@ -42,9 +42,12 @@ echo "finding gene counts for" $BAM
 ######## Begin gene count estimation via Bedtools #########
 # Do the intersect
 BAM_INTERSECT=$BAM_PREFIX\_intersect.bam
-samtools view -b $BAM | \
-    bedtools intersect -abam - \
-    -b $BED > $BAM_INTERSECT
+
+if [[ ! -e $BAM_INTERSECT ]]; then
+    samtools view -b $BAM | \
+        bedtools intersect -abam - \
+        -b $BED > $BAM_INTERSECT
+fi
 
 # Gene expression estimation via bedtools
 # -counts: Only report the count of overlaps, 
@@ -65,10 +68,13 @@ samtools view -b $BAM | \
 THIS_COUNTS_BED=$BEDTOOLS_DIR/$COUNTS_BED
 coverageBed_options='-counts -hist -d'
 
-bedtools coverage \
-    $coverageBed_options \
-    -abam $BAM_INTERSECT \
-    -b $BED >$THIS_COUNTS_BED
+if [[ ! -e $THIS_COUNTS_BED ]]; then
+    bedtools coverage \
+        $coverageBed_options \
+        -abam $BAM_INTERSECT \
+        -b $BED >$THIS_COUNTS_BED
+fi
+
 ######## END gene count estimation via Bedtools #########
 
 
@@ -96,16 +102,16 @@ else
 fi
 
 THIS_COUNTS_HTSEQ_PREFIX=$HTSEQ_DIR/$COUNTS_HTSEQ_PREFIX
-/usr/local/bin/htseq-count \
-    $HTSeqCount_options $SAM_SORTED $GFF \
-    >$THIS_COUNTS_HTSEQ_PREFIX.txt\
-    2>$THIS_COUNTS_HTSEQ_PREFIX.err
+if [[ ! -e $THIS_COUNTS_HTSEQ_PREFIX.txt ]]; then
+    $HTSEQ_BIN \
+        $HTSeqCount_options $SAM_SORTED $GFF \
+        >$THIS_COUNTS_HTSEQ_PREFIX.txt\
+        2>$THIS_COUNTS_HTSEQ_PREFIX.err
+fi
 ######## END gene count estimation via HTSeq #########
-
 
 $SCRIPTS_DIR/circos.sh \
     $BAM $SAM_SORTED $GENDER $ID $COMMON_VARS
-
 
 ############# BEGIN DEXSeq counts ##################
 DEXSEQ_OUT=$EXPRN_DIR/dexseq_counts.txt
