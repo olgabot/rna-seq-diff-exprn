@@ -8,7 +8,7 @@ options(error=utils::recover)
 ##
 ## Collaborators: 
 ## Usage: ./.R <arg1> <arg2> <arg3>
-## Example run: ./get_gene_density.R hg19_ucsc_knownCanonical.tab hg19_gene_density.txt
+## Example run: ./get_gene_density.R hg19_ucsc_knownCanonical.tab hg19_gene_density_1e5bins.txt 1e5
 
 ###### Get initial conditions ######
 args = commandArgs(TRUE)
@@ -16,7 +16,7 @@ knownCanonical = read.delim(args[1])
 outFile = args[2]
 
 # Measure gene density per megabase
-interval = 1e6 
+interval = as.numeric(args[3])
 ####################################
 # print(ls.str())
 
@@ -30,22 +30,24 @@ chromosomes = grep("chrM", chromosomes, invert=TRUE, value=TRUE)
 # 	ind = which(knownCanonical[,1] = chr)
 
 # 	})
+
 write("#chr\tchrStart\tchrEnd\tdensity", file=outFile, append=FALSE)
+
 for( chr in chromosomes ){
 	ind = which(knownCanonical[,1] == chr)
 	chrMin = min(knownCanonical[ind,2])
 	chrMax = max(knownCanonical[ind,3])
 	numIntervals = ceiling((chrMax-chrMin)/interval)
-	for( i in 1:numIntervals ){
 
+	for( i in 1:numIntervals ){
     # Get the value of the start and end positions on the chromosome
     # for this interval
 		thisIntervalMin = chrMin + (i-1)*interval
 		thisIntervalMax = min(chrMin + i*interval-1, chrMax)
 
     # Get the indices of genes in this interval
-		thisIntervalInd = which((knownCanonical[,2] > thisIntervalMin) &
-                  (knownCanonical[,3] < thisIntervalMax))
+		thisIntervalInd = which((knownCanonical[,2] >= thisIntervalMin) &
+      (knownCanonical[,3] < thisIntervalMax))
 
     # Get the density of this interval
 		thisIntervalDensity = length(thisIntervalInd)/(

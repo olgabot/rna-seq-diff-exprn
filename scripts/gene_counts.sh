@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 # Author: Olga Botvinnik (olga.botvinnik@gmail.com)
 # Date: 21 June 2012
@@ -110,7 +110,7 @@ if [[ ! -e $THIS_COUNTS_HTSEQ_PREFIX.txt ]]; then
 fi
 ######## END gene count estimation via HTSeq #########
 
-$SCRIPTS_DIR/circos.sh \
+$SCRIPTS_DIR/circos_single_sample.sh \
     $BAM $SAM_SORTED $GENDER $ID $COMMON_VARS
 
 ############# BEGIN DEXSeq counts ##################

@@ -1,12 +1,11 @@
-#!/bin/sh
-
+#!/bin/sh -x
 
 # TODO: Add "professional" getopts functionality:
 # - http://rsalveti.wordpress.com/2007/04/03/bash-parsing-arguments-with-getopts/
 # - http://aplawrence.com/Unix/getopts.html
 
 # Example run:
-# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density.txt test-data/hg19_gc_content_circos.txt 1
+# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos.txt 1
 
 # scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt 1
 
@@ -109,17 +108,22 @@ echo "COND='$COND'" | cat - >> $COMMON_VARS
 COND_WITHOUT_COMMENTS=$COND.without_comments
 sed -e 's/#.*//' -e 's/[ ^I]*$//' -e '/^$/ d' \
     < $COND > $COND_WITHOUT_COMMENTS
+echo "COND_WITHOUT_COMMENTS='$COND_WITHOUT_COMMENTS'" \
+    | cat - >> $COMMON_VARS
 
 # The bam prefixes of the files you want to use (comma-separated)
-BAM_PREFIXES=`cut -f1 $COND_WITHOUT_COMMENTS | tr "\n" "," | sed 's:,$::'`
+BAM_PREFIXES=`cut -f1 $COND_WITHOUT_COMMENTS | \\
+    tr "\n" "," | sed 's:,$::'`
 echo "BAM_PREFIXES='$BAM_PREFIXES'" | cat - >> $COMMON_VARS
 
 # Sample identification for each sample (comma-separated)
-IDS=`cut -f2 $COND_WITHOUT_COMMENTS | tr "\n" "," | sed 's:,$::' `
+IDS=`cut -f2 $COND_WITHOUT_COMMENTS | \\
+    tr "\n" "," | sed 's:,$::' `
 echo "IDS='$IDS'" | cat - >> $COMMON_VARS
 
 # Treatment groups (comma-separated)
-TREATMENT_GROUPS=`cut -f3 $COND_WITHOUT_COMMENTS | uniq | tr "\n" "," | sed 's:,$::'`
+TREATMENT_GROUPS=`cut -f3 $COND_WITHOUT_COMMENTS | \\
+    uniq | tr "\n" "," | sed 's:,$::'`
 echo "TREATMENT_GROUPS='$TREATMENT_GROUPS'" | cat - >> $COMMON_VARS
 
 # To determine whether ChrY should be included or omitted
@@ -128,12 +132,14 @@ echo "TREATMENT_GROUPS='$TREATMENT_GROUPS'" | cat - >> $COMMON_VARS
 GENDERS=`cut -f4 $COND_WITHOUT_COMMENTS | tr "\n" "," | sed 's:,$::'` 
 echo "GENDERS='$GENDERS'" | cat - >> $COMMON_VARS
 
-STRAND_SPECIFICITIES=`cut -f6 $COND_WITHOUT_COMMENTS | tr "\n" "," | sed 's:,$::'` 
-echo "STRAND_SPECIFICITIES='$STRAND_SPECIFICITIES'" | cat - >> $COMMON_VARS
+STRAND_SPECIFICITIES=`cut -f6 $COND_WITHOUT_COMMENTS | \\
+    tr "\n" "," | sed 's:,$::'` 
+echo "STRAND_SPECIFICITIES='$STRAND_SPECIFICITIES'" | \
+    cat - >> $COMMON_VARS
 
 echo "\n# Gene and species-specific variables" | cat - >> $COMMON_VARS
-# GTF (Gene Transfer Format) files that you want to use to estimate gene 
-# counts. 
+# GTF (Gene Transfer Format) files that you want to use to estimate 
+# gene counts. 
 # used by: HTSEQ and DEXSeq (differential exon usage)
 # GTF files are a subset of GFF (General Feature Format) files
 # To get one of these files, do the following steps:
@@ -373,7 +379,7 @@ if [[ ${#*} > 10 ]]; then
 # 
 # If you don't want ANY groupings, omit this variable from the command 
 # line.
-NUM_GROUPS=${11}
+    NUM_GROUPS=${11}
 else
     NUM_GROUPS=0
 fi 
@@ -386,6 +392,14 @@ echo "\n# More output directories" | cat - >> $COMMON_VARS
 # in the order specified by the conditions file (COND)
 EXPRN_DIR="$BASE_OUT_DIR/expression"
 echo "EXPRN_DIR='$EXPRN_DIR'" | cat - >> $COMMON_VARS
+
+# BEDTools and HTSeq are the two main programs used to estimate
+# expression on a per-gene level
+BEDTOOLS_DIR="$EXPRN_DIR/bedtools"
+echo "BEDTOOLS_DIR='$BEDTOOLS_DIR'" | cat - >> $COMMON_VARS
+
+HTSEQ_DIR="$EXPRN_DIR/htseq"
+echo "HTSEQ_DIR='$HTSEQ_DIR'" | cat - >> $COMMON_VARS
 
 # Circos results output location
 # Will create a folder for each sample in this location
@@ -457,19 +471,21 @@ echo "COVERAGE_BEDTOOLS='$COVERAGE_BEDTOOLS'" | cat - >> $COMMON_VARS
 echo 'looking for your htseq-counts file ... hopefully you installed HTSeq'
 
 # On Olga's machine for speed:
-HTSEQ_BIN=`find /opt/local -name 'htseq-count' -exec echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
+HTSEQ_BIN=`find /opt/local -name 'htseq-count' -exec \\
+    echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
 
 # HTSEQ_BIN=`find / -name 'htseq-count' -exec echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
 if [[ $HTSEQ_BIN == '' ]]; then
     # If the search found no file
     error_exit 'You do not have HTSeq installed.\nPlease visit http://www-huber.embl.de/users/anders/HTSeq/doc/overview.html and follow the instructions there on how to install the software package.'
 else
-    echo 'Way to go! You installed HTSeq. htseq-count is located:' $HTSEQ_BIN
+    echo 'Way to go! You installed HTSeq. htseq-count is located:' \
+        $HTSEQ_BIN
 fi
 echo "HTSEQ_BIN='$HTSEQ_BIN'" | cat - >> $COMMON_VARS
 
 #for (( i = 0 ; i < $END ; ++i )); do
-for (( i = 0 ; i < 1 ; ++i )); do
+for (( i = 0 ; i < $END ; ++i )); do
     BAM_PREFIX=${BAM_PREFIX_ARRAY[$i]}
     ID=${ID_ARRAY[$i]}
     GENDER=${GENDER_ARRAY[$i]}
@@ -482,16 +498,8 @@ for (( i = 0 ; i < 1 ; ++i )); do
         # to the $BAM_PREFIX
         BAM_PREFIX=`pwd`/$BAM_PREFIX
         BAM_PREFIX_ARRAY[$i]=$BAM_PREFIX
-        echo BAM_PREFIX: $BAM_PREFIX
-    fi
-
-    # if [[ $RSEQC_OUT_DIR != /* ]]; then
-    #     # If the $BAM_PREFIX does not start with a `/' then it is not
-    #     # an absolute path and we need to prepend the current directory
-    #     # to the $BAM_PREFIX
-    #     RSEQC_OUT_DIR=`pwd`/$RSEQC_OUT_DIR
-    #     echo RSEQC_OUT_DIR: $RSEQC_OUT_DIR
-    # fi    
+        # echo BAM_PREFIX: $BAM_PREFIX
+    fi  
 
     # Debugging for now, remove the rseqc files before executing
     # so that only the new ones appear in this folder:
@@ -506,9 +514,11 @@ for (( i = 0 ; i < 1 ; ++i )); do
 
     # Do quality control on this via 
     # RNA-Seq-QualityControl, aka RSeqQC:
-    # pushd $RSEQC_OUT_DIR ------------ BEGIN Debugging
-    # $SCRIPTS_DIR/rseqc.sh $BAM_PREFIX.bam $RSEQC_OUT_DIR $BED
-    # popd ------------ END Debugging (uncomment this for the real thing)
+    ------------ BEGIN Debugging
+    pushd $RSEQC_OUT_DIR 
+    $SCRIPTS_DIR/rseqc.sh $BAM_PREFIX.bam $RSEQC_OUT_DIR $BED
+    popd 
+    # ------------ END Debugging (uncomment this for the real thing)
 
     # Detect structural variants via SVDetect for this sample
 
@@ -523,7 +533,22 @@ for (( i = 0 ; i < 1 ; ++i )); do
 	   $GENDER $ID $STRAND $COMMON_VARS
 done
 
-# Merge the gene counts
+# Do group gene counts
+if [[ $NUM_GROUPS > 0 ]]; then
+    TREATMENT_GROUPS_DIR=$BASE_OUT_DIR/merged_groups
+    echo "TREATMENT_GROUPS_DIR='$TREATMENT_GROUPS_DIR'" | \
+        cat - >> $COMMON_VARS
+
+    $SCRIPTS_DIR/group_gene_counts.sh $COMMON_VARS \
+        $TREATMENT_GROUPS_DIR
+fi
+exit
+
+# Regardless of whether the number of groups was specified
+# or not, plot all the samples on the same circos plot
+$SCRIPTS_DIR/circos_all_samples.sh
+
+# Merge the gene counts onto one table
 $SCRIPTS_DIR/make_gene_counts_table.sh \
     $COMMON_VARS
 
