@@ -19,11 +19,11 @@ installed.
 
 1. Python 2.7 (for RSeQC and HTSeq, #2 and #3)
    http://www.python.org/getit/releases/2.7/
-   a. Cython - required for pybedtools below
+   1. Cython - required for pybedtools below
       http://www.cython.org/#download
-   b. pybedtools - required for HTSeq
+   2. pybedtools - required for HTSeq
       http://packages.python.org/pybedtools/
-   c. HTSeq - Another method of calculating gene expression counts,
+   3. HTSeq - Another method of calculating gene expression counts,
       in addition to BEDTools Coverage.
       http://www-huber.embl.de/users/anders/HTSeq/doc/overview.html
       Installed via python2.7, i.e. instead of typing
@@ -59,21 +59,21 @@ installed.
 
 6. R, 2.14.2 or later
    http://www.r-project.org/
-   a. DESeq
+   1. DESeq
    	  For differential expression analysis
       http://www-huber.embl.de/users/anders/DESeq/
-   b. NOISeq
+   2. NOISeq
       Another type of differential expression analysis software
       http://bioinfo.cipf.es/noiseq/doku.php?id=downloads
-   c. DEXSeq
+   3. DEXSeq
       Differential exon usage analysis
       http://bioconductor.org/packages/release/bioc/html/DEXSeq.html
 
 
 Other useful functions:
-- wig_to_circos.R: Converts .wig files (genome browser-type files) to
+* wig_to_circos.R: Converts .wig files (genome browser-type files) to
   files compatible with the Cirocs graphing format
-- get_gene_density.R: Using a knownCanonical format file, which looks like:
+* get_gene_density.R: Using a knownCanonical format file, which looks like:
     #chrom  chromStart  chromEnd  clusterId transcript  protein
     chr1  11873 14409 1 uc010nxq.1  uc010nxq.1
     chr1  14361 19759 2 uc009viu.3  uc009viu.3
