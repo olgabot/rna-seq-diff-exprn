@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 # Author: Olga Botvinnik (olga.botvinnik@gmail.com)
 # Date: 21 June 2012
@@ -21,6 +21,7 @@ GENDER=$2
 ID=$3
 STRAND=$4
 COMMON_VARS=$5
+i=$6
 
 # Initialize common variables
 source $COMMON_VARS
@@ -87,7 +88,6 @@ fi
 
 # echo 'COUNTS_HTSEQ=$COUNTS_HTSEQ' | cat - >> $COMMON_VARS
 
-
 # 'sort -s -k 1,1': Sort SAM file by read name before HTSeq
 SAM_SORTED=$BAM_PREFIX\_sorted_read_name.sam
 if [[ ! -e $SAM_SORTED ]] ; then
@@ -110,11 +110,14 @@ if [[ ! -e $THIS_COUNTS_HTSEQ_PREFIX.txt ]]; then
 fi
 ######## END gene count estimation via HTSeq #########
 
+
+# --- BEGIN Circos file preparation and plotting --- #
 $SCRIPTS_DIR/circos_single_sample.sh \
-    $BAM $SAM_SORTED $GENDER $ID $COMMON_VARS
+    $BAM $SAM_SORTED $GENDER $ID $COMMON_VARS $i
+# --- END Circos file preparation and plotting   --- #
 
 ############# BEGIN DEXSeq counts ##################
-DEXSEQ_OUT=$EXPRN_DIR/dexseq_counts.txt
+THIS_DEXSEQ_OUT=$DEXSEQ_DIR/$ID/dexseq_counts.txt
 if [[ ! -e $DEXSEQ_OUT ]]; then
     samtools view $BAM | \
         python2.7 $SCRIPTS_DIR/external/dexseq_count.py \

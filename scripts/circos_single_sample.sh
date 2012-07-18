@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -xv
 
 # Author: Olga Botvinnik (olga.botvinnik@gmail.com)
 # Date: 21 June 2012
@@ -19,6 +19,7 @@ SAM_SORTED=$2
 GENDER=$3  # male or female
 ID=$4
 COMMON_VARS=$5
+i=$6
 
 source $COMMON_VARS
 
@@ -55,7 +56,6 @@ BEDTOOLS_CIRCOS=$THIS_BEDTOOLS_DIR/$COVERAGE_BEDTOOLS_PREFIX.circos
 echo "making circos data out of coverage data (remove chrM and add stats at top)"
 # Make circos data out of coverage data (remove chrM and add stats at top)
 COVERAGE_BEDTOOLS_NO_CHR_M=$THIS_BEDTOOLS_DIR/$COVERAGE_BEDTOOLS_PREFIX.no_chrM
-# COVERAGE_HTSEQ_NO_CHR_M=$HTSEQ_DIR/$COVERAGE_HTSEQ_PREFIX.no_chrM
 
 # First line of HTSEQ is track type=BedGraph so need to remove first line,
 # but only in HTSeq genome coverage data. Also remove
@@ -79,23 +79,14 @@ if [[ $GENDER == 'female' ]] ; then
     mv $COVERAGE_BEDTOOLS_NO_CHR_Y $COVERAGE_BEDTOOLS_NO_CHR_M
 fi
 
-# HTSEQ_STATS=`awk '{sumsq+=$4*$4; sum+=$4<0?-$4:$4} END {print int(sqrt(sumsq/NR - (sum/NR)**2)); print int(sum/NR)}' $COVERAGE_HTSEQ_NO_CHR_M | tr "\n" " " | awk ' { print "# coverage stats: mean="$1"  std dev="$2 } ' `
-# test:
-# awk '{sumsq+=$4*$4; sum+=$4<0?-$4:$4} END {print int(sqrt(sumsq/NR - (sum/NR)**2)); print int(sum/NR)}' genome_coverage_bedtools.txt | tr "\n" " " | awk ' { print "# coverage stats: mean="$1"  std dev="$2 } '
+BEDTOOLS_STATS=`awk '{sumsq+=$4*$4; sum+=$4<0?-$4:$4} END \\
+{print int(sqrt(sumsq/NR - (sum/NR)**2)); print int(sum/NR)}' \\
+$COVERAGE_BEDTOOLS_NO_CHR_M | tr "\n" " " | \\
+awk ' { print "# coverage stats: mean="$1"  std dev="$2 } ' `
 
-BEDTOOLS_STATS=`awk '{sumsq+=$4*$4; sum+=$4<0?-$4:$4} END {print int(sqrt(sumsq/NR - (sum/NR)**2)); print int(sum/NR)}' $COVERAGE_BEDTOOLS_NO_CHR_M | tr "\n" " " | awk ' { print "# coverage stats: mean="$1"  std dev="$2 } ' `
-# echo "finished making HTSEQ_STATS and BEDTOOLS_STATS"
-# echo "BEDTOOLS_STATS" $BEDTOOLS_STATS
-# echo "HTSEQ_STATS" $HTSEQ_STATS
-
-# echo $HTSEQ_STATS | cat - $COVERAGE_HTSEQ_NO_CHR_M \
-#     > $HTSEQ_CIRCOS
 echo $BEDTOOLS_STATS | cat - $COVERAGE_BEDTOOLS_NO_CHR_M \
     > $BEDTOOLS_CIRCOS
-rm $COVERAGE_BEDTOOLS_NO_CHR_M #; rm $COVERAGE_HTSEQ_NO_CHR_M
-# echo 'finished' 'and' \
-#     $BEDTOOLS_CIRCOS
-# echo 'finished' $BEDTOOLS_CIRCOS
+rm $COVERAGE_BEDTOOLS_NO_CHR_M 
 
 # --- Not going to do this because it obscures the data too much --- #
 # ######### BEGIN Average over every megabase (1Mb) #########
@@ -131,7 +122,7 @@ if [[ ! -d $THIS_CIRCOS_OUT ]]; then
     mkdir -p $THIS_CIRCOS_OUT
 fi
 
-CIRCOS_TEMPLATE_DIR=$SCRIPTS_DIR/circos-templates
+# CIRCOS_TEMPLATE_DIR=$SCRIPTS_DIR/circos-templates
 cp -r $CIRCOS_TEMPLATE_DIR/single-sample/* \
     $THIS_CIRCOS_OUT
 
@@ -145,32 +136,67 @@ fi
 
 # ----- Replace keywords in template file with variables ----- #
 # Make the upper limit of the plot be the mean + (2 * std dev)
-UPPER_LIMIT=`echo $BEDTOOLS_STATS | tr '=' " " | awk -F' ' '{ mu=$5 ; sigma=$8 ; print mu+2*sigma}'`
+UPPER_LIMIT=`echo $BEDTOOLS_STATS | tr '=' " " | \\
+    awk -F' ' '{ mu=$5 ; sigma=$8 ; print mu+2*sigma}'`
 
 # Divide UPPER_LIMIT by 100 to get minimum value change
 # Last awk command is a floor function
-MIN_VALUE_CHANGE=`echo $UPPER_LIMIT | awk '{print $1/100}' | awk -F. '{print $1}'`
+MIN_VALUE_CHANGE=`echo $UPPER_LIMIT | awk '{print $1/100}' | \\
+    awk -F. '{print $1}'`
 
-sed -i '' -e"s:UPPER_LIMIT:${UPPER_LIMIT}:" \
-    $THIS_CIRCOS_OUT/etc/histogram.conf
+# --- Begin editing $COMMON_VARS --- #
+# Edit $COMMON_VARS to add thse upper limits and min value changes
+# so can take an average when plotting everything later on
 
+sed -i '' "s:UPPER_LIMITS=.*$:\\
+UPPER_LIMITS=$UPPER_LIMITS,$UPPER_LIMIT:" $COMMON_VARS
+
+sed -i '' "s:MIN_VALUE_CHANGES=.*$:\\
+MIN_VALUE_CHANGES=$MIN_VALUE_CHANGES,$MIN_VALUE_CHANGE:" $COMMON_VARS
+# --- End editing $COMMON_VARS --- #
+
+# --- Change the karyotype of this organism --- #
 sed -i '' -e"s:KARYOTYPE:${KARYOTYPE}:" \
     $THIS_CIRCOS_OUT/etc/circos.conf
 
-sed -i '' -e"s:MIN_VALUE_CHANGE:${MIN_VALUE_CHANGE}:" \
-    $THIS_CIRCOS_OUT/etc/histogram.conf
+
+# --- Edit the histogram-specific files for this sample --- #
+HISTOGRAM=$THIS_CIRCOS_OUT/etc/histogram.conf
+
+sed -i '' -e"s:UPPER_LIMIT:${UPPER_LIMIT}:" \
+    $HISTOGRAM
+
+sed -i '' -e"s:COVERAGE_MIN_VALUE_CHANGE:${MIN_VALUE_CHANGE}:" \
+    $HISTOGRAM
 
 sed -i '' -e"s:BEDTOOLS_COVERAGE:${BEDTOOLS_CIRCOS}:" \
-    $THIS_CIRCOS_OUT/etc/histogram.conf
+    $HISTOGRAM
 
-# sed -i '' -e"s:HTSEQ_COVERAGE:${HTSEQ_CIRCOS}:" \
-#     $THIS_CIRCOS_OUT/etc/histogram.conf
+SAMPLE_COLOR=${CIRCOS_ID_COLOR_ARRAY[$i]}
+sed -i '' -e"s:SAMPLE_COLOR:${SAMPLE_COLOR}:" \
+    $HISTOGRAM
 
-sed -i '' -e"s:GENE_DENSITY:${GENE_DENSITY}:" \
-    $THIS_CIRCOS_OUT/etc/histogram.conf
+# --- Edit the accompanying gene density and --- #
+# --- gc content files, if provided          --- #
+sed -i '' -e"s:GENE_DENSITY_FILE:${GENE_DENSITY_FILE}:" \
+    $HISTOGRAM
 
-sed -i '' -e"s:GC_CONTENT:${GC_CONTENT}:" \
-    $THIS_CIRCOS_OUT/etc/histogram.conf
+sed -i '' -e"s:GENE_DENSITY_COLOR:$GENE_DENSITY_COLOR:" \
+    $HISTOGRAM
+
+sed -i '' -e"s:MAX_GENE_DENSITY:$MAX_GENE_DENSITY:" \
+    $HISTOGRAM
+
+sed -i '' -e"s:GENE_DENSITY_MIN_VALUE_CHANGE:$GENE_DENSITY_MIN_VALUE_CHANGE:" \
+    $HISTOGRAM
+
+
+
+sed -i '' -e"s:GC_CONTENT_FILE:${GC_CONTENT_FILE}:" \
+    $HISTOGRAM
+
+sed -i '' -e"s:GC_CONTENT_COLOR:$GC_CONTENT_COLOR:" \
+    $HISTOGRAM
 
 ####### execute circos #######
 $CIRCOS_BIN -conf $THIS_CIRCOS_OUT/etc/circos.conf \

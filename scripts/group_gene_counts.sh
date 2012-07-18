@@ -1,29 +1,32 @@
 #!/bin/sh -x
 
+echo "\n# Variables from calculating group gene counts" | \
+	cat - >> $COMMON_VARS
+
 COMMON_VARS=$1
 source $COMMON_VARS
 
 GROUP_IDS=''
 
 for GROUP in `echo $TREATMENT_GROUPS | tr , ' '`; do
-  echo "finding gene counts for:" $GROUP
-  # THIS_GROUP_DIR=$TREATMENT_GROUPS_DIR/$GROUP
-  # echo "THIS_GROUP_DIR:" $THIS_GROUP_DIR
+	echo "finding gene counts for:" $GROUP
+	# THIS_GROUP_DIR=$TREATMENT_GROUPS_DIR/$GROUP
+	# echo "THIS_GROUP_DIR:" $THIS_GROUP_DIR
 
-  echo "finding samples...."
-  SAMPLES=`grep $GROUP $COND_WITHOUT_COMMENTS | cut -f2 | tr "\n" " "`
-  echo "samples:" $SAMPLES
-  declare -a SAMPLE_ARRAY=( `echo $SAMPLES` )
+	echo "finding samples...."
+	SAMPLES=`grep $GROUP $COND_WITHOUT_COMMENTS | cut -f2 | tr "\n" " "`
+	echo "samples:" $SAMPLES
+	declare -a SAMPLE_ARRAY=( `echo $SAMPLES` )
 
-  # for (( i = 0 ; i < ${#GROUPS_ARRAY[@]} ; i++ ));  do
+	# for (( i = 0 ; i < ${#GROUPS_ARRAY[@]} ; i++ ));  do
 	  
-  # done
+	# done
 
-  MIN_SAMPLES_PER_GROUP=`echo ${#SAMPLE_ARRAY[@]} $NUM_GROUPS | \\
-  	awk -F' ' '{ print $1/$2 }' | awk -F. '{print $1}'`
+	MIN_SAMPLES_PER_GROUP=`echo ${#SAMPLE_ARRAY[@]} $NUM_GROUPS | \\
+		awk -F' ' '{ print $1/$2 }' | awk -F. '{print $1}'`
 
-  for ((i=1;i<=$NUM_GROUPS;++i)); do
-  	GROUP_i=$GROUP\_group$i\of$NUM_GROUPS
+	for ((i=1;i<=$NUM_GROUPS;++i)); do
+		GROUP_i=$GROUP\_group$i\of$NUM_GROUPS
 	GROUP_i_DIR=$TREATMENT_GROUPS_DIR/$GROUP_i
 
 	# If the directory holding the BAM files doesn't exist yet,
@@ -31,7 +34,7 @@ for GROUP in `echo $TREATMENT_GROUPS | tr , ' '`; do
 	if [[ ! -d $GROUP_i_DIR ]] ; then
 		mkdir -p $GROUP_i_DIR
 	fi
-	
+
 	# Get the beginning index of the range of samples we're using
 	ind0=`echo $i $MIN_SAMPLES_PER_GROUP | \\
 		awk -F' ' '{ print 0+($1-1)*$2'}`
@@ -96,8 +99,9 @@ $BAM_IN_NEWLINE" > $GROUP_i_DIR/README.txt
 		$GROUP_i_STRAND \
 		$COMMON_VARS
 		# 2>$GROUP_i_DIR/gene-counts.sh.err
-  done
+	done
 done
 
 GROUP_IDS=`echo $GROUP_IDS | sed 's/,$//'`
 echo "GROUP_IDS='$GROUP_IDS'" | cat - >> $COMMON_VARS
+

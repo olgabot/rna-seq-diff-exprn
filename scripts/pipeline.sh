@@ -5,7 +5,7 @@
 # - http://aplawrence.com/Unix/getopts.html
 
 # Example run:
-# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos.txt 1
+# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt 1
 
 # scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt 1
 
@@ -91,7 +91,6 @@ echo "CIRCOS_BIN='$CIRCOS_BIN'" | cat - >> $COMMON_VARS
 
 # Finally, write the base out directory
 echo "BASE_OUT_DIR='$BASE_OUT_DIR'" | cat - >> $COMMON_VARS
-
 
 # tab-delimited file of the conditions of each sample, e.g.:
 # bam_prefix                   id      group     gender read_type
@@ -241,6 +240,8 @@ echo "BED='$BED'" | cat - >> $COMMON_VARS
 #    e.g. uc002gig.1 (column 1 in the kgXref file) and the gene symbols,
 #    e.g. TP53  (column 5 in the kgXref file), a known tumor suppressor 
 #    gene.
+#    Also you need to remove the first line, the header of the file
+#    that explains what is in which column
 #    You could do this in Microsoft Excel, but the human file
 #    (for example) has 80,923 lines in it and will crash Excel. For 
 #    organisms with fewer documented genes, using Excel to push columns 
@@ -264,7 +265,11 @@ echo "BED='$BED'" | cat - >> $COMMON_VARS
 #    Also, if you try to make your input and output files the same, the 
 #    commands may get confused and you could lose your original data. :(
 #      $ cut -f 1,5 < hg19_kgXref.txt | sed 1d > hg19_id_symbol.txt
-TXPTID_SYMBOL=`echo $6`
+TXPTID_SYMBOL=$6.sorted
+
+# Sort the transcript ID file so we have an established order for
+# the gene counts tables.
+sort -k 1,1 $6 > $TXPTID_SYMBOL
 if [[ $TXPTID_SYMBOL != /* ]]; then
     # if $GENOME is not an absolute path (starts with `/'), 
     # then make it one
@@ -341,25 +346,35 @@ echo "KARYOTYPE='$KARYOTYPE'" | cat - >> $COMMON_VARS
 # gene density, like this:
 #   $ cd rna-seq-diff-exprn/test-data
 #   $ ../scripts/get_gene_density.R hg19_ucsc_knownCanonical.tab hg19_gene_density.tab
-GENE_DENSITY=$9
-if [[ $GENE_DENSITY != /* ]]; then
-    # if $GENE_DENSITY is not an absolute path (starts with `/'), 
+GENE_DENSITY_FILE=$9
+if [[ $GENE_DENSITY_FILE != /* ]]; then
+    # if $GENE_DENSITY_FILE is not an absolute path (starts with `/'), 
     # then make it one
-    GENE_DENSITY=`pwd`/$GENE_DENSITY
+    GENE_DENSITY_FILE=`pwd`/$GENE_DENSITY_FILE
 fi
-echo "GENE_DENSITY='$GENE_DENSITY'" | cat - >> $COMMON_VARS
+echo "GENE_DENSITY_FILE='$GENE_DENSITY_FILE'" | cat - >> $COMMON_VARS
+
+MAX_GENE_DENSITY=`sed 1d $GENE_DENSITY_FILE | \\
+awk '{if ($4>max) max=$4} END{print max}'`
+echo "MAX_GENE_DENSITY='$MAX_GENE_DENSITY'" | cat - >> $COMMON_VARS
+
+GENE_DENSITY_MIN_VALUE_CHANGE=`echo "scale=10;\\
+    $MAX_GENE_DENSITY/100" | bc`
+echo "GENE_DENSITY_MIN_VALUE_CHANGE='$GENE_DENSITY_MIN_VALUE_CHANGE'" \
+    | cat - >> $COMMON_VARS
+
 
 # GC content file, can be created by converting a .wig (wiggle)
 # format file that's used for a genome browser into a circos format
 # using:
 # ../scripts/wig_to_circos.R hg19_gc1000Base.txt hg19_gc_content.circos
-GC_CONTENT="${10}"
-if [[ $GC_CONTENT != /* ]]; then
-    # if $GC_CONTENT is not an absolute path (starts with `/'), 
+GC_CONTENT_FILE="${10}"
+if [[ $GC_CONTENT_FILE != /* ]]; then
+    # if $GC_CONTENT_FILE is not an absolute path (starts with `/'), 
     # then make it one
-    GC_CONTENT=`pwd`/$GC_CONTENT
+    GC_CONTENT_FILE=`pwd`/$GC_CONTENT_FILE
 fi
-echo "GC_CONTENT='$GC_CONTENT'" | cat - >> $COMMON_VARS
+echo "GC_CONTENT_FILE='$GC_CONTENT_FILE'" | cat - >> $COMMON_VARS
 
 echo "\n# Number of groups to make from the TREATMENT_GROUPS" \
     | cat - >> $COMMON_VARS
@@ -401,11 +416,24 @@ echo "BEDTOOLS_DIR='$BEDTOOLS_DIR'" | cat - >> $COMMON_VARS
 HTSEQ_DIR="$EXPRN_DIR/htseq"
 echo "HTSEQ_DIR='$HTSEQ_DIR'" | cat - >> $COMMON_VARS
 
+DEXSEQ_DIR="$EXPRN_DIR/dexseq"
+echo "DEXSEQ_DIR='$DEXSEQ_DIR'" | cat - >> $COMMON_VARS
+
+DEXSEQ_OUT=dexseq_counts.txt
+echo "DEXSEQ_OUT='$DEXSEQ_OUT'" | cat - >> $COMMON_VARS
+
 # Circos results output location
 # Will create a folder for each sample in this location
 # (each folder's name determined by sample id)
 CIRCOS_OUT_DIR="$BASE_OUT_DIR/circos"
 echo "CIRCOS_OUT_DIR='$CIRCOS_OUT_DIR'" | cat - >> $COMMON_VARS
+
+CIRCOS_TEMPLATE_DIR="$SCRIPTS_DIR/circos-templates"
+echo "CIRCOS_TEMPLATE_DIR='$CIRCOS_TEMPLATE_DIR'" | \
+    cat - >> $COMMON_VARS
+
+
+
 ############## END Globally-used variables ##############
 
 
@@ -446,6 +474,7 @@ if [[ ${#BAM_PREFIX_ARRAY[@]} -ne ${#ID_ARRAY[@]} ]] ; then
 fi
 
 ###### Some more variables for gene counts files
+echo "\n# Variables for gene counts and genome-wide coverage files"
 COUNTS_BED=bedtools_gene_counts.txt
 echo "COUNTS_BED='$COUNTS_BED'" | cat - >> $COMMON_VARS
 
@@ -453,6 +482,60 @@ COUNTS_HTSEQ_PREFIX=htseq_gene_counts
 COUNTS_HTSEQ=$COUNTS_HTSEQ_PREFIX.txt
 echo "COUNTS_HTSEQ='$COUNTS_HTSEQ'" | cat - >> $COMMON_VARS
 echo "COUNTS_HTSEQ_PREFIX='$COUNTS_HTSEQ_PREFIX'" | cat - >> $COMMON_VARS
+
+# --- Circos-specific variables --- #
+CIRCOS_ALL_COLORS_ARRAY=( dark2-8-qual-{1,2,3,4,5,6,7,8} )
+echo "CIRCOS_ALL_COLORS_ARRAY=( ${CIRCOS_ALL_COLORS_ARRAY[@]} )" \
+    | cat - >> $COMMON_VARS
+# TODO: cannot have more than 6 groups if gene density and GC
+#       content are provided because we need different colors for
+#       plotting on circos. If gene density and GC aren't provided,
+#       can have up to 8 groups.
+
+IndexOf()    {
+    local i=0 S=$1; shift
+    while [ $S != $1 ]
+    do    ((i++)); shift
+        [ -z "$1" ] && { i=-1; break; }
+    done
+    echo $i
+}
+
+# Make array of colors for each sample, based on its group
+TREATMENT_GROUPS_ALL=( `cut -f3 $COND_WITHOUT_COMMENTS | \\
+    tr "\n" ' '` )
+for (( i = 0; i < ${#TREATMENT_GROUPS_ALL[@]}; i++ )); do
+    # Get the name of the group for this sample index
+    GROUP=${TREATMENT_GROUPS_ALL[$i]}
+
+    # Find the index of this group in the array of unique group names
+    IND=`IndexOf $GROUP ${GROUPS_ARRAY[@]}`
+
+    # Assign this ID the IND'th color in the list of possible colors
+    CIRCOS_ID_COLOR_ARRAY[$i]=${CIRCOS_ALL_COLORS_ARRAY[$IND]}
+done
+
+echo "CIRCOS_ID_COLOR_ARRAY=( ${CIRCOS_ID_COLOR_ARRAY[@]} )" \
+    | cat - >> $COMMON_VARS
+
+GC_CONTENT_COLOR=${CIRCOS_ALL_COLORS_ARRAY[6]}
+echo "GC_CONTENT_COLOR='$GC_CONTENT_COLOR'" | \
+    cat - >> $COMMON_VARS
+
+GENE_DENSITY_COLOR=${CIRCOS_ALL_COLORS_ARRAY[7]}
+echo "GENE_DENSITY_COLOR='$GENE_DENSITY_COLOR'" | \
+    cat - >> $COMMON_VARS
+
+UPPER_LIMITS=''
+echo "UPPER_LIMITS='$UPPER_LIMITS'" | cat - >> $COMMON_VARS
+
+MIN_VALUE_CHANGES=''
+echo "MIN_VALUE_CHANGES='$MIN_VALUE_CHANGES'" | \
+    cat - >> $COMMON_VARS
+
+# echo ${CIRCOS_ID_COLOR_ARRAY[@]}
+# --- End Circos-specific variables --- #
+# exit
 
 ## More variables for genome-wide counts
 COVERAGE_HTSEQ_PREFIX=htseq_genome_coverage
@@ -471,10 +554,13 @@ echo "COVERAGE_BEDTOOLS='$COVERAGE_BEDTOOLS'" | cat - >> $COMMON_VARS
 echo 'looking for your htseq-counts file ... hopefully you installed HTSeq'
 
 # On Olga's machine for speed:
-HTSEQ_BIN=`find /opt/local -name 'htseq-count' -exec \\
-    echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
+HTSEQ_BIN=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin/htseq-count
+# HTSEQ_BIN=`find /opt/local -name 'htseq-count' -exec \\
+#     echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
 
+# The real slim shady:
 # HTSEQ_BIN=`find / -name 'htseq-count' -exec echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
+
 if [[ $HTSEQ_BIN == '' ]]; then
     # If the search found no file
     error_exit 'You do not have HTSeq installed.\nPlease visit http://www-huber.embl.de/users/anders/HTSeq/doc/overview.html and follow the instructions there on how to install the software package.'
@@ -514,10 +600,10 @@ for (( i = 0 ; i < $END ; ++i )); do
 
     # Do quality control on this via 
     # RNA-Seq-QualityControl, aka RSeqQC:
-    ------------ BEGIN Debugging
-    pushd $RSEQC_OUT_DIR 
-    $SCRIPTS_DIR/rseqc.sh $BAM_PREFIX.bam $RSEQC_OUT_DIR $BED
-    popd 
+    # ------------ BEGIN Debugging
+    # pushd $RSEQC_OUT_DIR 
+    # $SCRIPTS_DIR/rseqc.sh $BAM_PREFIX.bam $RSEQC_OUT_DIR $BED
+    # popd 
     # ------------ END Debugging (uncomment this for the real thing)
 
     # Detect structural variants via SVDetect for this sample
@@ -529,27 +615,33 @@ for (( i = 0 ; i < $END ; ++i )); do
 #    b. Make circos plot of coverage for this sample
 # 3. Estimates differential exon usage counts using
 #    dexseq_counts.py
+    # ------------ BEGIN Debugging
     $SCRIPTS_DIR/gene_counts.sh $BAM_PREFIX $EXPRN_OUT_DIR \
-	   $GENDER $ID $STRAND $COMMON_VARS
+	   $GENDER $ID $STRAND $COMMON_VARS $i
+    # ------------ END Debugging (uncomment this for the real thing)
 done
 
 # Do group gene counts
-if [[ $NUM_GROUPS > 0 ]]; then
-    TREATMENT_GROUPS_DIR=$BASE_OUT_DIR/merged_groups
-    echo "TREATMENT_GROUPS_DIR='$TREATMENT_GROUPS_DIR'" | \
-        cat - >> $COMMON_VARS
+# ------------ BEGIN Debugging
+# if [[ $NUM_GROUPS > 0 ]]; then
+#     TREATMENT_GROUPS_DIR=$BASE_OUT_DIR/merged_groups
+#     echo "TREATMENT_GROUPS_DIR='$TREATMENT_GROUPS_DIR'" | \
+#         cat - >> $COMMON_VARS
 
-    $SCRIPTS_DIR/group_gene_counts.sh $COMMON_VARS \
-        $TREATMENT_GROUPS_DIR
-fi
-exit
+#     $SCRIPTS_DIR/group_gene_counts.sh $COMMON_VARS \
+#         $TREATMENT_GROUPS_DIR
+# fi
+# ------------ END Debugging (uncomment this for the real thing)
+
 
 # Regardless of whether the number of groups was specified
 # or not, plot all the samples on the same circos plot
-$SCRIPTS_DIR/circos_all_samples.sh
+$SCRIPTS_DIR/circos_all_samples.sh $COMMON_VARS
+
+echo "Number of seconds since starting this script: $SECONDS"
 
 # Merge the gene counts onto one table
-$SCRIPTS_DIR/make_gene_counts_table.sh \
-    $COMMON_VARS
+# $SCRIPTS_DIR/make_gene_counts_table.sh \
+#     $COMMON_VARS
 
 # Do differential expression analysis
