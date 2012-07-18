@@ -1,0 +1,7 @@
+recover called non-interactively; frames dumped, use debugger() to view
+[1] "time to read file: /Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/PrEC_1/htseq_genome_coverage.circos"
+   user  system elapsed 
+  0.292   0.040   0.331 
+recover called non-interactively; frames dumped, use debugger() to view
+No suitable frames for recover()
+recover called non-interactively; frames dumped, use debugger() to view

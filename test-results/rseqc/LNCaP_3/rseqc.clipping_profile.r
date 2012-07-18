@@ -1,0 +1,5 @@
+pdf('clipping_profile.pdf')
+read_pos=c()
+count=c()
+plot(read_pos,1-(count/69721),col="blue",main="clipping profile",xlab="Position of reads",ylab="Mappability",type="b")
+dev.off()

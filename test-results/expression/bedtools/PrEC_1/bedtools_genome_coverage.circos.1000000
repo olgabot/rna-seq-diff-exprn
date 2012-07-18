@@ -1,0 +1,7 @@
+[1] "time to read file: /Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/PrEC_1/bedtools_genome_coverage.circos"
+   user  system elapsed 
+  0.514   0.050   0.559 
+[1] "number of 1e+06 bp intervals for chr9 140"
+[1] "finished chromosome: chr9"
+   user  system elapsed 
+  0.907   0.083   0.991 
