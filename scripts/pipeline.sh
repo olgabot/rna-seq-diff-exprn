@@ -5,7 +5,7 @@
 # - http://aplawrence.com/Unix/getopts.html
 
 # Example run:
-# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt 1
+# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt 1
 
 # scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt 1
 
@@ -265,6 +265,11 @@ echo "BED='$BED'" | cat - >> $COMMON_VARS
 #    Also, if you try to make your input and output files the same, the 
 #    commands may get confused and you could lose your original data. :(
 #      $ cut -f 1,5 < hg19_kgXref.txt | sed 1d > hg19_id_symbol.txt
+#    Or, if you want to create a chromosome-specific file like I did,
+#    use your .bed file to search through your kgXref file:
+#      $ cut -f 4 hg19_ucsc_genes_chr9.bed | grep --fixed-strings - hg19_kgXref.txt >hg19_kgXref_chr9.txt
+#    Then do the same as above, but with your chr9 file:
+#      $ cut -f 1,5 < hg19_kgXref_chr9.txt | sed 1d > hg19_id_symbol_chr9.txt
 TXPTID_SYMBOL=$6.sorted
 
 # Sort the transcript ID file so we have an established order for
@@ -474,7 +479,8 @@ if [[ ${#BAM_PREFIX_ARRAY[@]} -ne ${#ID_ARRAY[@]} ]] ; then
 fi
 
 ###### Some more variables for gene counts files
-echo "\n# Variables for gene counts and genome-wide coverage files"
+echo "\n# Variables for gene counts and genome-wide coverage files"\
+    | cat - >> $COMMON_VARS
 COUNTS_BED=bedtools_gene_counts.txt
 echo "COUNTS_BED='$COUNTS_BED'" | cat - >> $COMMON_VARS
 
@@ -623,25 +629,29 @@ done
 
 # Do group gene counts
 # ------------ BEGIN Debugging
-# if [[ $NUM_GROUPS > 0 ]]; then
-#     TREATMENT_GROUPS_DIR=$BASE_OUT_DIR/merged_groups
-#     echo "TREATMENT_GROUPS_DIR='$TREATMENT_GROUPS_DIR'" | \
-#         cat - >> $COMMON_VARS
+if [[ $NUM_GROUPS > 0 ]]; then
+    TREATMENT_GROUPS_DIR=$BASE_OUT_DIR/merged_groups
+    echo "TREATMENT_GROUPS_DIR='$TREATMENT_GROUPS_DIR'" | \
+        cat - >> $COMMON_VARS
 
-#     $SCRIPTS_DIR/group_gene_counts.sh $COMMON_VARS \
-#         $TREATMENT_GROUPS_DIR
-# fi
+    $SCRIPTS_DIR/group_gene_counts.sh $COMMON_VARS \
+        $TREATMENT_GROUPS_DIR
+fi
 # ------------ END Debugging (uncomment this for the real thing)
 
 
 # Regardless of whether the number of groups was specified
 # or not, plot all the samples on the same circos plot
-$SCRIPTS_DIR/circos_all_samples.sh $COMMON_VARS
+# --- BEGIN Debugging comments --- #
+# $SCRIPTS_DIR/circos_all_samples.sh $COMMON_VARS
+# --- END Debugging comments --- #
 
-echo "Number of seconds since starting this script: $SECONDS"
+
 
 # Merge the gene counts onto one table
-# $SCRIPTS_DIR/make_gene_counts_table.sh \
-#     $COMMON_VARS
+$SCRIPTS_DIR/make_gene_counts_table.sh \
+    $COMMON_VARS
+
+echo "Number of seconds since starting this script: $SECONDS"
 
 # Do differential expression analysis

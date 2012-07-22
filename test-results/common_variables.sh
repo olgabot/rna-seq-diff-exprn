@@ -13,10 +13,10 @@ GENDERS='male,male,male,male,male,male'
 STRAND_SPECIFICITIES='not_strand_specific,not_strand_specific,not_strand_specific,not_strand_specific,not_strand_specific,not_strand_specific'
 
 # Gene and species-specific variables
-GTF='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-data/hg19_ucsc_genes_chr9.gtf'
+GTF='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-data/hg19_ucsc_genes.gtf'
 DEXSEQ_GTF='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-data/hg19_ucsc_genes_chr9_dexseq.gtf'
-BED='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-data/hg19_ucsc_genes_chr9.bed.without_track_name'
-TXPTID_SYMBOL='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-data/hg19_id_symbol.txt'
+BED='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-data/hg19_ucsc_genes.bed.without_track_name'
+TXPTID_SYMBOL='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-data/hg19_id_symbol.txt.sorted'
 GENOME='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-data/human.hg19.genome'
 KARYOTYPE='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-data/karyotype/karyotype.human.hg19.txt'
 GENE_DENSITY_FILE='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-data/hg19_gene_density_1e5bins.txt'
@@ -43,35 +43,27 @@ ID_ARRAY=( LNCaP_1 LNCaP_2 LNCaP_3 LNCaP_4 PrEC_1 PrEC_2 )
 GROUPS_ARRAY=( LNCaP PrEC )
 GENDER_ARRAY=( male male male male male male )
 STRAND_ARRAY=( not_strand_specific not_strand_specific not_strand_specific not_strand_specific not_strand_specific not_strand_specific )
+
+# Variables for gene counts and genome-wide coverage files
 COUNTS_BED='bedtools_gene_counts.txt'
-
-
-
-
-
-
-UPPER_LIMITS=,28,34,32,36,25,16
-UPPER_LIMITS_PREFIX='htseq_gene_counts'
+COUNTS_HTSEQ='htseq_gene_counts.txt'
+COUNTS_HTSEQ_PREFIX='htseq_gene_counts'
 CIRCOS_ALL_COLORS_ARRAY=( dark2-8-qual-1 dark2-8-qual-2 dark2-8-qual-3 dark2-8-qual-4 dark2-8-qual-5 dark2-8-qual-6 dark2-8-qual-7 dark2-8-qual-8 )
 CIRCOS_ID_COLOR_ARRAY=( dark2-8-qual-1 dark2-8-qual-1 dark2-8-qual-1 dark2-8-qual-1 dark2-8-qual-2 dark2-8-qual-2 )
 GC_CONTENT_COLOR='dark2-8-qual-7'
 GENE_DENSITY_COLOR='dark2-8-qual-8'
-
-
-
-
-
-
-UPPER_LIMITS=,28,34,32,36,25,16
-
-
-
-
-
-
-MIN_VALUE_CHANGES=,0,0,0,0,0,0
+UPPER_LIMITS=''
+MIN_VALUE_CHANGES=''
 COVERAGE_HTSEQ_PREFIX='htseq_genome_coverage'
 COVERAGE_HTSEQ='htseq_genome_coverage.wig'
 COVERAGE_BEDTOOLS_PREFIX='bedtools_genome_coverage'
 COVERAGE_BEDTOOLS='bedtools_genome_coverage.txt'
 HTSEQ_BIN='/opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin/htseq-count'
+TREATMENT_GROUPS_DIR='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/merged_groups'
+GROUP_IDS='LNCaP_group1of1,PrEC_group1of1'
+COUNTS_BED_TAB='bedtools_txptID_count.txt'
+COUNTS_HTSEQ_TAB='htseq_txptID_count.txt'
+
+# Variables for expression counts tables
+BED_COUNTS_TABLE='bedtools_counts_table.tab'
+HTSEQ_COUNTS_TABLE='htseq_counts_table.tab'

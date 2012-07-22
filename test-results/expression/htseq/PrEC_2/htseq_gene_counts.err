@@ -1,1 +1,16 @@
-/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/scripts/gene_counts.sh: line 100: /usr/local/bin/htseq-count: No such file or directory
+100000 GFF lines processed.
+200000 GFF lines processed.
+300000 GFF lines processed.
+400000 GFF lines processed.
+500000 GFF lines processed.
+600000 GFF lines processed.
+700000 GFF lines processed.
+800000 GFF lines processed.
+900000 GFF lines processed.
+1000000 GFF lines processed.
+1100000 GFF lines processed.
+1200000 GFF lines processed.
+1300000 GFF lines processed.
+1400000 GFF lines processed.
+1436624 GFF lines processed.
+36122 sam lines  processed.
