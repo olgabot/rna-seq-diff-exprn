@@ -58,6 +58,7 @@ done
 if [[ $NUM_GROUPS -gt 0 ]]; then
 # look at the second column of $COND to find the groups
 # --> saved in $COMMON_VARS
+	echo "--- Adding group counts ---"
     for GROUP_ID in `echo $GROUP_IDS | tr , ' '` ; do
 	# GROUP_BASE_DIR=$BASE_OUT_DIR/groups
 
@@ -66,47 +67,47 @@ if [[ $NUM_GROUPS -gt 0 ]]; then
 	# fi
 
 	echo "making results/expression tab files for" $GROUP
-	for (( i = 0 ; i < $NUM_GROUPS ; ++i )); do
+	# for (( i = 0 ; i < $NUM_GROUPS ; ++i )); do
 	    # THIS_GROUP_DIR=$GROUP_BASE_DIR/$GROUP_$i
 	 #    if [[ ! -d $THIS_GROUP_DIR ]]; then
 		# mkdir -r $THIS_GROUP_DIR
 	 #    fi
 	    
-	    THIS_COUNTS_BED=$BEDTOOLS_DIR/$GROUP_ID/$COUNTS_BED
-	    THIS_COUNTS_BED_TAB=$BEDTOOLS_DIR/$GROUP_ID/$COUNTS_BED_TAB
+    THIS_COUNTS_BED=$BEDTOOLS_DIR/$GROUP_ID/$COUNTS_BED
+    THIS_COUNTS_BED_TAB=$BEDTOOLS_DIR/$GROUP_ID/$COUNTS_BED_TAB
 
-	    # if [[ ! -e $THIS_COUNTS_TAB ]]; then
-			$SCRIPTS_DIR/make-bed-name-count.sh \
-			    $THIS_COUNTS_BED \
-			    $THIS_COUNTS_BED_TAB
-	    # fi
-	    IN_FILES_BED=$IN_FILES_BED,$THIS_COUNTS_TAB
-	    COL_NAMES=$COL_NAMES,$GROUP_ID
+    # if [[ ! -e $THIS_COUNTS_TAB ]]; then
+		$SCRIPTS_DIR/make_bed_name_count.sh \
+		    $THIS_COUNTS_BED \
+		    $THIS_COUNTS_BED_TAB
+    # fi
+    IN_FILES_BED=$IN_FILES_BED,$THIS_COUNTS_BED_TAB
+    COL_NAMES=$COL_NAMES,$GROUP_ID
 
-	    BAM=`ls $G_DIR/*.bam  | head -n 1`
-	    
-	    THIS_COUNTS_HTSEQ=$HTSEQ_DIR/$GROUP_ID/$COUNTS_HTSEQ
-	    THIS_HTSEQ_TAB=$HTSEQ_DIR/$COUNTS_HTSEQ_TAB
-	    echo THIS_HTSEQ_TAB $THIS_HTSEQ_TAB
+    # BAM=`ls $TREATMENT_GROUPS_DIR/$GROUP_ID/*.bam  | head -n 1`
+    
+    THIS_COUNTS_HTSEQ=$HTSEQ_DIR/$GROUP_ID/$COUNTS_HTSEQ
+    THIS_HTSEQ_TAB=$HTSEQ_DIR/$GROUP_ID/$COUNTS_HTSEQ_TAB
+    echo THIS_HTSEQ_TAB $THIS_HTSEQ_TAB
 #      if [ ! -e $THIS_COUNTS_HTSEQ ]; then
-	    # REF_GFF=/home/obot/bed_and_gtf/hg19_ucsc-genes.gtf
-	 #    REF_HTSEQ_PREFIX=$G_DIR/ref_htseq_counts
-	 #    samtools view $BAM | sort -k 1,1 |
-	 #    /usr/local/bin/htseq-count \
-		# --stranded=no - $REF_GFF \
-		# >$REF_HTSEQ_PREFIX.txt \
-		# 2>$REF_HTSEQ_PREFIX.err
+    # REF_GFF=/home/obot/bed_and_gtf/hg19_ucsc-genes.gtf
+ #    REF_HTSEQ_PREFIX=$G_DIR/ref_htseq_counts
+ #    samtools view $BAM | sort -k 1,1 |
+ #    /usr/local/bin/htseq-count \
+	# --stranded=no - $REF_GFF \
+	# >$REF_HTSEQ_PREFIX.txt \
+	# 2>$REF_HTSEQ_PREFIX.err
 #      fi
 
 
-    # Take everything except the last 5 lines
-	    head -n \
-			`wc -l $THIS_COUNTS_HTSEQ | awk '{print $1-5}'` \
-			$THIS_COUNTS_HTSEQ > $THIS_HTSEQ_TAB
+# Take everything except the last 5 lines
+    head -n \
+		`wc -l $THIS_COUNTS_HTSEQ | awk '{print $1-5}'` \
+		$THIS_COUNTS_HTSEQ > $THIS_HTSEQ_TAB
 
-	    IN_FILES_HTSEQ=$IN_FILES_HTSEQ,$THIS_HTSEQ_TAB
+    IN_FILES_HTSEQ=$IN_FILES_HTSEQ,$THIS_HTSEQ_TAB
 	    
-		done
+		# done
     done
 fi
 

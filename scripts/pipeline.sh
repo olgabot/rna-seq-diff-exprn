@@ -622,8 +622,8 @@ for (( i = 0 ; i < $END ; ++i )); do
 # 3. Estimates differential exon usage counts using
 #    dexseq_counts.py
     # ------------ BEGIN Debugging
-    $SCRIPTS_DIR/gene_counts.sh $BAM_PREFIX $EXPRN_OUT_DIR \
-	   $GENDER $ID $STRAND $COMMON_VARS $i
+    # $SCRIPTS_DIR/gene_counts.sh $BAM_PREFIX $EXPRN_OUT_DIR \
+	   # $GENDER $ID $STRAND $COMMON_VARS $i
     # ------------ END Debugging (uncomment this for the real thing)
 done
 
@@ -655,3 +655,4 @@ $SCRIPTS_DIR/make_gene_counts_table.sh \
 echo "Number of seconds since starting this script: $SECONDS"
 
 # Do differential expression analysis
+
