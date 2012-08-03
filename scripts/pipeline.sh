@@ -506,6 +506,14 @@ IndexOf()    {
     done
     echo $i
 }
+echo '\nIndexOf()    {
+    local i=0 S=$1; shift
+    while [ $S != $1 ]
+    do    ((i++)); shift
+        [ -z "$1" ] && { i=-1; break; }
+    done
+    echo $i
+}\n' | cat - >> $COMMON_VARS
 
 # Make array of colors for each sample, based on its group
 TREATMENT_GROUPS_ALL=( `cut -f3 $COND_WITHOUT_COMMENTS | \\
@@ -649,10 +657,56 @@ fi
 
 
 # Merge the gene counts onto one table
+# This script also takes care of the header in the bedtools
+# counts file and the 5 extra lines in the HTSEQ_COUNT file.
 $SCRIPTS_DIR/make_gene_counts_table.sh \
     $COMMON_VARS
 
-echo "Number of seconds since starting this script: $SECONDS"
+# Make a table with the gene symbols and all possible transcripts,
+# and one with only the max for each gene symbol. 
+# 
+# For example, for
+# the "all" gene counts, if we start with these counts for the
+# gene TTLL11:
+# uc004blr.3    TTLL11  397 0   456 450 298 207 1744    838
+# uc004blt.1    TTLL11  78  0   92  98  76  53  356 166
+# uc004blu.1    TTLL11  78  0   92  98  76  53  356 166
+# uc011lyl.2    TTLL11  397 0   456 450 298 207 1744    838
+# uc011lym.1    TTLL11  71  0   88  87  61  37  322 147
+# Then we end with these counts:
+# TTLL11 (uc004blr.3)   397 0   456 450 298 207 1744    838
+# TTLL11 (uc004blt.1)   78  0   92  98  76  53  356 166
+# TTLL11 (uc004blu.1)   78  0   92  98  76  53  356 166
+# TTLL11 (uc011lyl.2)   397 0   456 450 298 207 1744    838
+# TTLL11 (uc011lym.1)   71  0   88  87  61  37  322 147
+#
+# But for the "max" counts, if we start with the same counts for
+# TTLL11 as above, then we get:
+# TTLL11    397 0   456 450 298 207 1744    838
+# Which was the maximum for each sample, so we can't associate it
+# with a particular transcript ID.
+EXPRN_SCRIPTS_DIR=$SCRIPTS_DIR/expression
+echo "EXPRN_SCRIPTS_DIR='$EXPRN_SCRIPTS_DIR'" | \
+    cat - >> $COMMON_VARS
+$EXPRN_SCRIPTS_DIR/emake_max_and_all_txpt_counts.R \
+    $BEDTOOLS_DIR/bedtools_counts_table.tab \
+    $BEDTOOLS_DIR/bedtools_counts_table_all.tab \
+    $BEDTOOLS_DIR/bedtools_counts_table_max.tab
+
+$EXPRN_SCRIPTS_DIR/make_max_and_all_txpt_counts.R \
+    $HTSEQ_DIR/htseq_counts_table.tab \
+    $HTSEQ_DIR/htseq_counts_table_all.tab \
+    $HTSEQ_DIR/htseq_counts_table_max.tab
 
 # Do differential expression analysis
 
+# Testing:
+# cd ~/workspace/rna-seq-diff-exprn
+# scripts/expression/make_expression_common.sh test-results/common_variables.sh test-results/expression/expression_common.R
+# --- Make an R script that contains common variables to all   --- #
+# --- differential expression scripts (colors, filenames, etc) --- #
+EXPRESSION_COMMON=$EXPRN_DIR/expression_common.R
+$EXPRN_SCRIPTS_DIR/make_expression_common.sh $COMMON_VARS 
+
+
+echo "Number of seconds since starting this script: $SECONDS"

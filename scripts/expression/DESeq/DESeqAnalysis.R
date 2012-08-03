@@ -4,7 +4,8 @@ options(error=utils::recover)
 library(gplots)  # Plotting with heatmap.2
 library(DESeq)   # Differential results/expression
 library(vsn)     # Variance stabilization
-source("ssGSEA_analysis.R")# For heatmap.olga (no clustering) and mutual.inf.2
+source("ssGSEA_analysis.R")
+# For heatmap.olga (no clustering) and mutual.inf.2
 ##
 ## DESeqAnalysis
 ##
@@ -13,7 +14,8 @@ source("ssGSEA_analysis.R")# For heatmap.olga (no clustering) and mutual.inf.2
 ##
 ## Collaborators: 
 ## Usage: ./DESeqAnalysis.R <arg1> <arg2> <arg3>
-## Example run: ./DESeqAnalysis.R counts_per-symbol-max.tab counts_per-symbol-uniq.tab counts_per-symbol-max.conditions figures/counts_per-symbol 10
+## Example run: 
+# ./DESeqAnalysis.R counts_per-symbol-max.tab counts_per-symbol-uniq.tab counts_per-symbol-max.conditions figures/counts_per-symbol 10
 
 ## To run on Grettir which doesn't like my /usr/bin/Rscript and won't
 ## comply with #!/share/apps/bin/R:
@@ -21,10 +23,15 @@ source("ssGSEA_analysis.R")# For heatmap.olga (no clustering) and mutual.inf.2
 
 ###### Get initial conditions ######
 args = commandArgs(TRUE)
-countsMaxFile = args[1]   # Gene-level counts, took the max at each gene
-countsUniqFile = args[2]  # Transcript-level counts, have gene symbol but
-						# looks like: TP53, TP53.1, TP53.2, ... for all the 
-						# possible transcripts
+
+# Gene-level counts, took the max at each gene
+countsMaxFile = args[1]
+
+# Transcript-level counts, have gene symbol but
+# looks like: TP53, TP53.1, TP53.2, ... for all the 
+# possible transcripts
+countsUniqFile = args[2]
+
 conditionsFile = args[3]
 filePrefix = args[4]
 if( length(args) == 5){
@@ -43,7 +50,8 @@ min.cutoff = as.numeric(args[5])   	# Only use genes that have values greater th
 ####################################
 # print(ls.str())
 
-conds = factor(unlist(read.delim(conditionsFile, header=FALSE))) #t(as.matrix(read.delim(conditionsFile, header=FALSE)))
+conds = factor(unlist(read.delim(conditionsFile, header=FALSE,
+	comment.char="#"))) #t(as.matrix(read.delim(conditionsFile, header=FALSE)))
 indGroup = grep("group", conds, ignore.case=TRUE, value=FALSE)
 indNotGroup = grep("group", conds, ignore.case=TRUE, value=FALSE, 
 	invert = TRUE)

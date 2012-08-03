@@ -117,11 +117,11 @@ $HTSEQ_BIN \
 # --- END Circos file preparation and plotting   --- #
 
 ############# BEGIN DEXSeq counts ##################
-THIS_DEXSEQ_OUT=$DEXSEQ_DIR/$ID/dexseq_counts.txt
+THIS_DEXSEQ_OUT=$DEXSEQ_DIR/$ID/$DEXSEQ_OUT
 # if [[ ! -e $DEXSEQ_OUT ]]; then
 samtools view $BAM | \
     python2.7 $SCRIPTS_DIR/external/dexseq_count.py \
     $HTSeqCount_options \
-    $DEXSEQ_GTF - $DEXSEQ_OUT
+    $DEXSEQ_GTF - $THIS_DEXSEQ_OUT
 # fi
 ########################
