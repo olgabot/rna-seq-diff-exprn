@@ -1,0 +1,18 @@
+# These data are a subset http://0-www.ncbi.nlm.nih.gov.elis.tmu.edu.tw/geo/query/acc.cgi?acc=GSE27619 from GEO, specifically:
+# GSM721116, GSM721117, GSM721118, GSM721119, GSM721123, GSM721124
+## LNCaP and PrEC are the names of prostate cancer cell lines used in this GEO dataset
+## As you may have noticed, any lines starting with a hash (`#') are ignored 
+## This file is based on the columns, so if you add extraneous columns, they will not be read into the program (ie you can add comments)
+####
+# This is a tab-delimited file, with the following columns:
+# bam_prefix	id	group	gender	read_type	strandedness
+## id = (user-defined, could be anything)
+## group = (user-defined, could be anything)
+## gender = male --or-- female
+## read_type = single_read --or-- paired_end
+## strandedness = whether the cDNA library preparation was strand-specific or not. values = "strand_specific" --or-- "not_strand_specific"
+test-data/GSM721117_mctp_20F0GAAXX_1_chr9_withheader	LNCaP_1	LNCaP	male	single_read	not_strand_specific # (This is a comment) Illumina
+test-data/GSM721119_mctp_20F0GAAXX_2_chr9_withheader	LNCaP_2	LNCaP	male	single_read	not_strand_specific	# Illumina
+test-data/GSM721118_mctp_20F0GAAXX_3_chr9_withheader	LNCaP_3	LNCaP	male	single_read	not_strand_specific
+test-data/GSM721116_mctp_20F0GAAXX_4_chr9_withheader	LNCaP_4	LNCaP	male	single_read	not_strand_specific
+test-data/GSM721123_mctp_30CYNAAXX_5_chr9_withheader	PrEC_1	PrEC	male	single_read	not_strand_specific

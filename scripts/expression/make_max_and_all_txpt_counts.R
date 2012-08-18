@@ -83,11 +83,15 @@ all.ds[,1] = geneSymbolsAll
 header = paste(c("Name", colnames(counts.ds)[-1:-2]), collapse="\t")
 
 write(header, file=countsAllFile, append=FALSE)
+# --- row.names = FALSE for "all" because we made --- #
+# --- the first column contain the gene symbols   --- #
 write.table(all.ds, file=countsAllFile, append=TRUE, sep="\t",
 	quote = FALSE, eol = "\n", na = "NA", dec = ".", 
-	row.names = TRUE, col.names = FALSE)
+	row.names = FALSE, col.names = FALSE)
 
 write(header, file=countsMaxFile, append=FALSE)
+# --- row.names = TRUE for "max" because the we don't keep --- #
+# --- the gene symbol in the first column like in "all"    --- #
 write.table(max.ds, file=countsMaxFile, append=TRUE, sep="\t",
 	quote = FALSE, eol = "\n", na = "NA", dec = ".", 
 	row.names = TRUE, col.names = FALSE)

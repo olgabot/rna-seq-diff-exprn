@@ -1,11 +1,14 @@
 #!/bin/sh -x
 
-# TODO: Add "professional" getopts functionality:
-# - http://rsalveti.wordpress.com/2007/04/03/bash-parsing-arguments-with-getopts/
-# - http://aplawrence.com/Unix/getopts.html
+# Example run (without groups):
+# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt
 
-# Example run:
-# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt 1
+# Example run (with groups):
+# scripts/pipeline.sh test-results test-data/conditions_chr9_noPrEC_2.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt 1
+
+# Test for making sure there are at least two samples per
+# treatment type (This *should* break)
+# scripts/pipeline.sh test-results test-data/conditions_chr9_noPrEC_2.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt
 
 # scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes_chr9.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes_chr9.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt 1
 
@@ -78,6 +81,25 @@ if [ -e $COMMON_VARS ] ; then
 fi
 echo '#!/bin/sh\n' | cat - >> $COMMON_VARS
 echo '# Globally used variables' | cat - >> $COMMON_VARS
+echo "COMMON_VARS='$COMMON_VARS'" | cat - >> $COMMON_VARS
+
+# Find the index of a value in an array
+IndexOf()    {
+    local i=0 S=$1; shift
+    while [ $S != $1 ]
+    do    ((i++)); shift
+        [ -z "$1" ] && { i=-1; break; }
+    done
+    echo $i
+}
+echo '\nIndexOf()    {
+    local i=0 S=$1; shift
+    while [ $S != $1 ]
+    do    ((i++)); shift
+        [ -z "$1" ] && { i=-1; break; }
+    done
+    echo $i
+}\n' | cat - >> $COMMON_VARS
 
 # Check which directory this file is in - this is the 'scripts'
 # directory that all the other scripts are in
@@ -102,6 +124,11 @@ echo "BASE_OUT_DIR='$BASE_OUT_DIR'" | cat - >> $COMMON_VARS
 # ~/data/sample5/accepted_hits sample5 treated female paired_end
 # ~/data/sample6/accepted_hits sample6 treated male paired_end
 COND="$2"
+if [[ $COND != /* ]]; then
+    # if $COND is not an absolute path (starts with `/'), 
+    # then make it one
+    COND=`pwd`/$COND
+fi
 echo "COND='$COND'" | cat - >> $COMMON_VARS
 
 COND_WITHOUT_COMMENTS=$COND.without_comments
@@ -113,6 +140,16 @@ echo "COND_WITHOUT_COMMENTS='$COND_WITHOUT_COMMENTS'" \
 # The bam prefixes of the files you want to use (comma-separated)
 BAM_PREFIXES=`cut -f1 $COND_WITHOUT_COMMENTS | \\
     tr "\n" "," | sed 's:,$::'`
+BAM_PREFIXES_FULL_PATH=''
+for B in `echo $BAM_PREFIXES | tr , ' '` ; do
+    if [[ $B != /* ]]; then
+        # if $B is not an absolute path (starts with `/'), 
+        # then make it one
+        B=`pwd`/$B
+    fi
+    BAM_PREFIXES_FULL_PATH=$BAM_PREFIXES_FULL_PATH,$B
+done
+BAM_PREFIXES=`echo $BAM_PREFIXES_FULL_PATH | sed 's/^,//'`
 echo "BAM_PREFIXES='$BAM_PREFIXES'" | cat - >> $COMMON_VARS
 
 # Sample identification for each sample (comma-separated)
@@ -120,10 +157,69 @@ IDS=`cut -f2 $COND_WITHOUT_COMMENTS | \\
     tr "\n" "," | sed 's:,$::' `
 echo "IDS='$IDS'" | cat - >> $COMMON_VARS
 
-# Treatment groups (comma-separated)
+# Treatment groups (unique list, comma-separated)
 TREATMENT_GROUPS=`cut -f3 $COND_WITHOUT_COMMENTS | \\
     uniq | tr "\n" "," | sed 's:,$::'`
 echo "TREATMENT_GROUPS='$TREATMENT_GROUPS'" | cat - >> $COMMON_VARS
+TREATMENT_GROUPS_ALL=( `cut -f3 $COND_WITHOUT_COMMENTS` ) #| \\
+    # tr "\n" ' '` )
+echo `cut -f3 $COND_WITHOUT_COMMENTS`
+echo ${TREATMENT_GROUPS_ALL[@]}
+echo "TREATMENT_GROUPS_ALL=( ${TREATMENT_GROUPS_ALL[@]} )" | \
+    cat - >> $COMMON_VARS
+
+GROUPS_ARRAY=( `echo $TREATMENT_GROUPS | tr "," " "` )
+echo "GROUPS_ARRAY=( ${GROUPS_ARRAY[@]} )" \
+    | cat - >> $COMMON_VARS
+
+# Check that there are at least two samples in each treatment group,
+# preventing DESeq from getting angry when it sees that there are
+# no replicates for a particular treatment group.
+# --- Initial test: make sure the unique treatment groups --- #
+# --- aren't the same length as ALL the treatment groups  --- #
+if [[ $TREATMENT_GROUPS == `${TREATMENT_GROUPS_ALL[@]} | tr ' ' ,` ]]; then
+    error_exit "The number of treatment groups is the same as the
+number of samples, i.e. each sample is a member of a treatment
+group different from every other sample. This means that this experiment
+has no replicates, but DESeq, the differential expression package we use,
+requires at least one replicate per treatment type.
+Please re-run this analysis with at least one replicate per treatment
+type."
+fi
+# Declare OBSERVED_TREATMENT_GROUPS as an array.
+# This will have the same length as TREATMENT_GROUPS but
+# the values at an index will be the number of times a treatment
+# group is observed. This is a workaround since Bash 3 (what I have
+# on my machine and what most people have since Bash 4 came out in
+# 2009) does not have hash tables/associative arrays as in Bash 4.
+declare -a OBSERVED_TREATMENT_GROUPS
+
+# Iterate over all treatment groups to count them up
+for G in ${TREATMENT_GROUPS_ALL[@]}; do
+    i=`IndexOf $G ${GROUPS_ARRAY[@]}`
+    if [[ ${OBSERVED_TREATMENT_GROUPS[$i]} == '' ]]; then
+        # echo 'true'
+        OBSERVED_TREATMENT_GROUPS[$i]=1
+    else
+        # echo 'false'
+        # echo ${OBSERVED_TREATMENT_GROUPS[$i]}
+        OBSERVED_TREATMENT_GROUPS[$i]=`
+            echo "${OBSERVED_TREATMENT_GROUPS[$i]}+1" | bc`
+    fi
+done
+
+echo ${OBSERVED_TREATMENT_GROUPS[@]}
+
+# Check if any treatment group has been observed only
+# once, i.e. if there is any value in OBSERVED_TREATMENT_GROUPS
+# equal to 1
+i=`IndexOf 1 ${OBSERVED_TREATMENT_GROUPS[@]}`
+if [[ $i -gt -1 ]]; then
+    error_exit "One of the treatment groups, ${GROUPS_ARRAY[$i]},
+has only one sample. The differential expression software used in this
+package, DESeq, requires at least two samples (one replicate) per
+group. Please add samples to this treatment group."
+fi
 
 # To determine whether ChrY should be included or omitted
 # from the analyses, specify the gender of each sample
@@ -403,6 +499,12 @@ if [[ ${#*} > 10 ]]; then
 else
     NUM_GROUPS=0
 fi 
+
+if [[ $NUM_GROUPS == 1 ]]; then
+    error_exit "Cannot specify a single group for each treatment type. 
+This is because DESeq (used in differential expression analysis)
+breaks if there are no biological replicates of an experiment."
+fi
 echo "NUM_GROUPS='$NUM_GROUPS'" | cat - >> $COMMON_VARS
 
 echo "\n# More output directories" | cat - >> $COMMON_VARS
@@ -461,10 +563,6 @@ ID_ARRAY=( `echo $IDS | tr "," " "`)
 echo "ID_ARRAY=( ${ID_ARRAY[@]} )" \
     | cat - >> $COMMON_VARS
 
-GROUPS_ARRAY=( `echo $TREATMENT_GROUPS | tr "," " "` )
-echo "GROUPS_ARRAY=( ${GROUPS_ARRAY[@]} )" \
-    | cat - >> $COMMON_VARS
-
 GENDER_ARRAY=( `echo $GENDERS | tr "," " "`)
 echo "GENDER_ARRAY=( ${GENDER_ARRAY[@]} )" \
     | cat - >> $COMMON_VARS
@@ -498,26 +596,7 @@ echo "CIRCOS_ALL_COLORS_ARRAY=( ${CIRCOS_ALL_COLORS_ARRAY[@]} )" \
 #       plotting on circos. If gene density and GC aren't provided,
 #       can have up to 8 groups.
 
-IndexOf()    {
-    local i=0 S=$1; shift
-    while [ $S != $1 ]
-    do    ((i++)); shift
-        [ -z "$1" ] && { i=-1; break; }
-    done
-    echo $i
-}
-echo '\nIndexOf()    {
-    local i=0 S=$1; shift
-    while [ $S != $1 ]
-    do    ((i++)); shift
-        [ -z "$1" ] && { i=-1; break; }
-    done
-    echo $i
-}\n' | cat - >> $COMMON_VARS
-
 # Make array of colors for each sample, based on its group
-TREATMENT_GROUPS_ALL=( `cut -f3 $COND_WITHOUT_COMMENTS | \\
-    tr "\n" ' '` )
 for (( i = 0; i < ${#TREATMENT_GROUPS_ALL[@]}; i++ )); do
     # Get the name of the group for this sample index
     GROUP=${TREATMENT_GROUPS_ALL[$i]}
@@ -569,8 +648,10 @@ echo 'looking for your htseq-counts file ... hopefully you installed HTSeq'
 
 # On Olga's machine for speed:
 HTSEQ_BIN=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin/htseq-count
+# --- BEGIN On anyone else's machine --- #
 # HTSEQ_BIN=`find /opt/local -name 'htseq-count' -exec \\
 #     echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
+# --- END On anyone else's machine --- #
 
 # The real slim shady:
 # HTSEQ_BIN=`find / -name 'htseq-count' -exec echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
@@ -638,7 +719,7 @@ done
 # Do group gene counts
 # ------------ BEGIN Debugging
 if [[ $NUM_GROUPS > 0 ]]; then
-    TREATMENT_GROUPS_DIR=$BASE_OUT_DIR/merged_groups
+    TREATMENT_GROUPS_DIR=$BASE_OUT_DIR/merged_groups_bam
     echo "TREATMENT_GROUPS_DIR='$TREATMENT_GROUPS_DIR'" | \
         cat - >> $COMMON_VARS
 
@@ -659,8 +740,10 @@ fi
 # Merge the gene counts onto one table
 # This script also takes care of the header in the bedtools
 # counts file and the 5 extra lines in the HTSEQ_COUNT file.
+# --- BEGIN Debugging comments --- #
 $SCRIPTS_DIR/make_gene_counts_table.sh \
     $COMMON_VARS
+# --- END Debugging comments --- #
 
 # Make a table with the gene symbols and all possible transcripts,
 # and one with only the max for each gene symbol. 
@@ -688,25 +771,85 @@ $SCRIPTS_DIR/make_gene_counts_table.sh \
 EXPRN_SCRIPTS_DIR=$SCRIPTS_DIR/expression
 echo "EXPRN_SCRIPTS_DIR='$EXPRN_SCRIPTS_DIR'" | \
     cat - >> $COMMON_VARS
-$EXPRN_SCRIPTS_DIR/emake_max_and_all_txpt_counts.R \
-    $BEDTOOLS_DIR/bedtools_counts_table.tab \
-    $BEDTOOLS_DIR/bedtools_counts_table_all.tab \
-    $BEDTOOLS_DIR/bedtools_counts_table_max.tab
 
-$EXPRN_SCRIPTS_DIR/make_max_and_all_txpt_counts.R \
-    $HTSEQ_DIR/htseq_counts_table.tab \
-    $HTSEQ_DIR/htseq_counts_table_all.tab \
-    $HTSEQ_DIR/htseq_counts_table_max.tab
+BEDTOOLS_ALL=$BEDTOOLS_DIR/bedtools_counts_table_all.tab
+echo "BEDTOOLS_ALL='$BEDTOOLS_ALL'" | \
+    cat - >> $COMMON_VARS
+BEDTOOLS_MAX=$BEDTOOLS_DIR/bedtools_counts_table_max.tab
+echo "BEDTOOLS_MAX='$BEDTOOLS_MAX'" | \
+    cat - >> $COMMON_VARS
+R --slave --args $BEDTOOLS_DIR/bedtools_counts_table.tab \
+    $BEDTOOLS_ALL $BEDTOOLS_MAX \
+    < $EXPRN_SCRIPTS_DIR/make_max_and_all_txpt_counts.R
+
+HTSEQ_ALL=$HTSEQ_DIR/htseq_counts_table_all.tab
+echo "HTSEQ_ALL='$HTSEQ_ALL'" | \
+    cat - >> $COMMON_VARS
+HTSEQ_MAX=$HTSEQ_DIR/htseq_counts_table_max.tab
+echo "HTSEQ_MAX='$HTSEQ_MAX'" | \
+    cat - >> $COMMON_VARS
+R --slave --args $HTSEQ_DIR/htseq_counts_table.tab \
+    $HTSEQ_ALL $HTSEQ_MAX \
+    < $EXPRN_SCRIPTS_DIR/make_max_and_all_txpt_counts.R
 
 # Do differential expression analysis
 
 # Testing:
 # cd ~/workspace/rna-seq-diff-exprn
 # scripts/expression/make_expression_common.sh test-results/common_variables.sh test-results/expression/expression_common.R
+
+# --- Make tab-delimited file that has all the compared groups --- #
+# --- for differential expression analysis                     --- #
+DIFF_EXPRN_GROUPS=$EXPRN_DIR/diff_exprn_groups.tab
+echo ${TREATMENT_GROUPS_ALL[@]} `echo $GROUP_IDS | \\
+    sed -E 's/(_group)[[:digit:]]of[[:digit:]]/\1/g' | tr , "\t"` \
+    > $DIFF_EXPRN_GROUPS
+echo "DIFF_EXPRN_GROUPS='$DIFF_EXPRN_GROUPS'" | \
+    cat - >> $COMMON_VARS
+
+# --- Make BEDTools and HTSeq folders for DESeq figures --- #
+BEDTOOLS_FIGS=$BEDTOOLS_DIR/figures
+BEDTOOLS_DESEQ_DIR=$BEDTOOLS_FIGS/DESeq
+if [[ ! -d $BEDTOOLS_DESEQ ]]; then
+    mkdir -p $BEDTOOLS_DESEQ_DIR
+fi
+BEDTOOLS_DESEQ_PREFIX=$BEDTOOLS_DESEQ/deseq
+echo '
+# --- Variables for DESEQ analysis --- #' | cat - >> $COMMON_VARS
+echo "BEDTOOLS_FIGS='$BEDTOOLS_FIGS'
+BEDTOOLS_DESEQ_DIR='$BEDTOOLS_DESEQ_DIR'
+BEDTOOLS_DESEQ_PREFIX='$BEDTOOLS_DESEQ_DIR/'" | \
+    cat - >> $COMMON_VARS
+
+HTSEQ_FIGS=$HTSEQ_DIR/figures
+HTSEQ_DESEQ_DIR=$HTSEQ_FIGS/DESeq
+if [[ ! -d $HTSEQ_DESEQ ]]; then
+    mkdir -p $HTSEQ_DESEQ_DIR
+fi
+HTSEQ_DESEQ_PREFIX=$HTSEQ_DESEQ/deseq
+echo "HTSEQ_FIGS='$HTSEQ_FIGS'
+HTSEQ_DESEQ_DIR='$HTSEQ_DESEQ_DIR'
+HTSEQ_DESEQ_PREFIX='$HTSEQ_DESEQ_DIR/'" | \
+    cat - >> $COMMON_VARS
+
 # --- Make an R script that contains common variables to all   --- #
 # --- differential expression scripts (colors, filenames, etc) --- #
+# This script also makes the (1) "all" and (2) "max" gene counts 
+# tables, which contain (1) all the transcripts for a gene symbol,
+# and (2) only the count for the maximum transcript for a particular
+# sample and gene symbol. This is described in greater detail
+# (and with an example!) in:
+# rna-seq-diff-exprn/scripts/expression/make_max_and_all_txpt_counts.R
 EXPRESSION_COMMON=$EXPRN_DIR/expression_common.R
-$EXPRN_SCRIPTS_DIR/make_expression_common.sh $COMMON_VARS 
+echo "EXPRESSION_COMMON='$EXPRESSION_COMMON'" | \
+    cat - >> $COMMON_VARS
+DESEQ_SCRIPTS_DIR=$EXPRN_SCRIPTS_DIR/DESeq
+echo "DESEQ_SCRIPTS_DIR='$DESEQ_SCRIPTS_DIR'" | \
+    cat - >> $COMMON_VARS
+$EXPRN_SCRIPTS_DIR/make_expression_common.sh $COMMON_VARS
 
+# --- Run DESeq analysis on BEDTools and HTSeq counts --- #
+R --slave --args $EXPRESSION_COMMON \
+    < $DESEQ_SCRIPTS_DIR/DESeqAnalysis.R
 
 echo "Number of seconds since starting this script: $SECONDS"

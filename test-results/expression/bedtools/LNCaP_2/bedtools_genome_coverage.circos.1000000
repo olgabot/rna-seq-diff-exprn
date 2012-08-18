@@ -1,7 +1,0 @@
-recover called non-interactively; frames dumped, use debugger() to view
-[1] "time to read file: /Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/LNCaP_2/bedtools_genome_coverage.circos"
-   user  system elapsed 
-  0.294   0.043   0.350 
-recover called non-interactively; frames dumped, use debugger() to view
-No suitable frames for recover()
-recover called non-interactively; frames dumped, use debugger() to view

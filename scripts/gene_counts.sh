@@ -118,10 +118,12 @@ $HTSEQ_BIN \
 
 ############# BEGIN DEXSeq counts ##################
 THIS_DEXSEQ_OUT=$DEXSEQ_DIR/$ID/$DEXSEQ_OUT
-# if [[ ! -e $DEXSEQ_OUT ]]; then
+if [[ ! -d $DEXSEQ_DIR/$ID ]]; then
+    mkdir -p $DEXSEQ_DIR/$ID
+fi
+
 samtools view $BAM | \
     python2.7 $SCRIPTS_DIR/external/dexseq_count.py \
     $HTSeqCount_options \
     $DEXSEQ_GTF - $THIS_DEXSEQ_OUT
-# fi
 ########################

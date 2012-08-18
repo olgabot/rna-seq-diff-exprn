@@ -1,0 +1,5 @@
+test-data/GSM721117_mctp_20F0GAAXX_1_chr9_withheader	LNCaP_1	LNCaP	male	single_read	not_strand_specific
+test-data/GSM721119_mctp_20F0GAAXX_2_chr9_withheader	LNCaP_2	LNCaP	male	single_read	not_strand_specific	
+test-data/GSM721118_mctp_20F0GAAXX_3_chr9_withheader	LNCaP_3	LNCaP	male	single_read	not_strand_specific
+test-data/GSM721116_mctp_20F0GAAXX_4_chr9_withheader	LNCaP_4	LNCaP	male	single_read	not_strand_specific
+test-data/GSM721123_mctp_30CYNAAXX_5_chr9_withheader	PrEC_1	PrEC	male	single_read	not_strand_specific

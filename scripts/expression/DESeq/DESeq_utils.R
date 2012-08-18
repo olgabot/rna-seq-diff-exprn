@@ -32,6 +32,7 @@ plot(res$baseMean, res$log2FoldChange, log="x", pch=20,cex=.3,
 	col=ifelse(res$padj < .1, "red", "black"))
 }
 
+# print("Sourced DESeq_utils, now have new plotVSD function")
 plotVSD = function(cds, vsd, filename.base){
 	# Plot variance stabilizing transformation 
 	sampleNamesCDS = sampleNames(phenoData(cds))
@@ -48,6 +49,8 @@ plotVSD = function(cds, vsd, filename.base){
 	
 	pdf(paste(filename.base, "_varianceStabilizingTransformation.pdf", sep=""))
 	for( sampleInd in 1:nSamples){
+		# print(sampleInd)
+		# print(head(counts(cds)))
 		px     = counts(cds)[,sampleInd] / sizeFactors(cds)[sampleInd]
 		ord    = order(px)
 		ord    = ord[px[ord] < 150]

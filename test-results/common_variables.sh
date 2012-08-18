@@ -77,3 +77,12 @@ TREATMENT_GROUPS_DIR='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-res
 GROUP_IDS='LNCaP_group1of2,LNCaP_group2of2,PrEC_group1of2,PrEC_group2of2'
 COUNTS_BED_TAB='bedtools_txptID_count.txt'
 COUNTS_HTSEQ_TAB='htseq_txptID_count.txt'
+
+# Variables for expression counts tables
+BED_COUNTS_TABLE='bedtools_counts_table.tab'
+HTSEQ_COUNTS_TABLE='htseq_counts_table.tab'
+EXPRN_SCRIPTS_DIR='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/scripts/expression'
+BEDTOOLS_ALL='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/bedtools_counts_table_all.tab'
+BEDTOOLS_MAX='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/bedtools_counts_table_max.tab'
+HTSEQ_ALL='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/htseq_counts_table_all.tab'
+HTSEQ_MAX='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/htseq_counts_table_max.tab'

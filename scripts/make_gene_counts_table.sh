@@ -1,4 +1,4 @@
-#!/bin/sh  -x
+#!/bin/sh
 
 COMMON_VARS=$1
 source $COMMON_VARS
@@ -54,6 +54,8 @@ for (( i = 0 ; i < $END ; ++i )); do
     IN_FILES_HTSEQ=$IN_FILES_HTSEQ,$THIS_COUNTS_HTSEQ_TAB
     COL_NAMES=$COL_NAMES,$ID
 done
+
+set -x
 
 if [[ $NUM_GROUPS -gt 0 ]]; then
 # look at the second column of $COND to find the groups
