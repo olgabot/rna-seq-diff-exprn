@@ -1,2 +1,18 @@
-/opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin/htseq-count: Error: Please provide two arguments.
-  Call with '-h' to get usage information.
+100000 GFF lines processed.
+200000 GFF lines processed.
+300000 GFF lines processed.
+400000 GFF lines processed.
+500000 GFF lines processed.
+600000 GFF lines processed.
+700000 GFF lines processed.
+800000 GFF lines processed.
+900000 GFF lines processed.
+1000000 GFF lines processed.
+1100000 GFF lines processed.
+1200000 GFF lines processed.
+1300000 GFF lines processed.
+1400000 GFF lines processed.
+1436624 GFF lines processed.
+100000 sam lines  processed.
+200000 sam lines  processed.
+215205 sam lines  processed.
