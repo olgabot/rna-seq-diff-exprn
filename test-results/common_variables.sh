@@ -86,3 +86,14 @@ BEDTOOLS_ALL='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/exp
 BEDTOOLS_MAX='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/bedtools_counts_table_max.tab'
 HTSEQ_ALL='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/htseq_counts_table_all.tab'
 HTSEQ_MAX='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/htseq_counts_table_max.tab'
+DIFF_EXPRN_GROUPS='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/diff_exprn_groups.tab'
+
+# --- Variables for DESEQ analysis --- #
+BEDTOOLS_FIGS='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/figures'
+BEDTOOLS_DESEQ_DIR='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/figures/DESeq'
+BEDTOOLS_DESEQ_PREFIX='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/figures/DESeq/'
+HTSEQ_FIGS='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/figures'
+HTSEQ_DESEQ_DIR='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/figures/DESeq'
+HTSEQ_DESEQ_PREFIX='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/figures/DESeq/'
+EXPRESSION_COMMON='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/expression_common.R'
+DESEQ_SCRIPTS_DIR='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/scripts/expression/DESeq'
