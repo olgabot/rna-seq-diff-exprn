@@ -35,14 +35,16 @@ htseq.deseq.prefix = "/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-res
 # --- Make list type to access name and dataset for each of --- #
 # --- max and all types                                     --- #
 bedtools.counts = list(list(name="all", ds=bedtools.counts.all), 
-	list(name="max",ds=bedtools.counts.max))
+	list(name="max", ds=bedtools.counts.max))
 htseq.counts = list(list(name="all", ds=htseq.counts.all), 
-	list(name="max",ds=htseq.counts.max))
+	list(name="max", ds=htseq.counts.max))
 
 conds = factor(unlist(read.delim(conditionsFile, header=FALSE))) #t(as.matrix(read.delim(conditionsFile, header=FALSE)))
-indGroup = grep("group", conds, ignore.case=TRUE, value=FALSE)
-indNotGroup = grep("group", conds, ignore.case=TRUE, value=FALSE, 
+indGroup = grep("group", as.character(conds), ignore.case=TRUE, value=FALSE)
+indNotGroup = grep("group", as.character(conds), ignore.case=TRUE, value=FALSE, 
 	invert = TRUE)
+
+print(ls.str())
 
 countTypes = list(list(name="bedtools", counts=bedtools.counts,
 	figures=bedtools.figures, deseq.dir=bedtools.deseq.dir,
