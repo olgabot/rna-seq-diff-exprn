@@ -1,4 +1,4 @@
-#!/bin/sh -xv
+#!/bin/sh
 
 # Author: Olga Botvinnik (olga.botvinnik@gmail.com)
 # Date: 21 June 2012

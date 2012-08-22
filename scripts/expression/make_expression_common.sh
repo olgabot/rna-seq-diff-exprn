@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 # make_expression_common.sh
 # Created by: Olga Botvinnik on 07-31-2012

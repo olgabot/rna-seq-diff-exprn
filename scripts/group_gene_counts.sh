@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 COMMON_VARS=$1
 source $COMMON_VARS
