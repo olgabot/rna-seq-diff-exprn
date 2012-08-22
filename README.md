@@ -27,9 +27,9 @@ installed.
       in addition to BEDTools Coverage.
       http://www-huber.embl.de/users/anders/HTSeq/doc/overview.html
       Installed via python2.7, i.e. instead of typing
-       python setup.py install
+       `python setup.py install`
      Say:
-       python2.7 setup.py install
+       `python2.7 setup.py install`
 
 2. RSeQC, RNA-Sequencing Quality Control software 
    Version 2.3 or later, http://code.google.com/p/rseqc/downloads/list
@@ -44,18 +44,18 @@ installed.
 5. Circos, version 0.60 or later (for plotting genome coverage data)
    Note: Circos has a number of Perl package dependencies that take some
    time to make sure they are all properly installed on your system.
-   http://circos.ca/software/download/circos
-   Aliased such that 'circos' will run the program
+   `http://circos.ca/software/download/circos`
+   Aliased such that `circos` will run the program
    On my machine, this is accomplished by adding this line to the file in
-   /Users/olgabotvinnik/.bashrc, or my ~/.bashrc file:
-     PATH=$PATH:/usr/bin/circos/bin ; export PATH
+   `/Users/olgabotvinnik/.bashrc`, or my `~/.bashrc` file:
+     `PATH=$PATH:/usr/bin/circos/bin ; export PATH`
    Which means that when you run commands, the computer will know to look 
-   in /usr/bin/circos/bin for potential executable files. /usr/bin/circos
+   in `/usr/bin/circos/bin` for potential executable files. /usr/bin/circos
    Is where I personally installed Circos. On the server that I use, for
    example, it is installed in:
-     /share/apps/circos-0.60/bin
-   So then my ~/.bashrc file on the server looks like:
-     PATH=$PATH:/share/apps/circos-0.60/bin ; export PATH
+     `/share/apps/circos-0.60/bin`
+   So then my `~/.bashrc` file on the server looks like:
+     `PATH=$PATH:/share/apps/circos-0.60/bin ; export PATH`
 
 6. R, 2.14.2 or later
    http://www.r-project.org/
@@ -71,9 +71,10 @@ installed.
 
 
 Other useful functions:
-* wig_to_circos.R: Converts .wig files (genome browser-type files) to
+* `wig_to_circos.R`: Converts .wig files (genome browser-type files) to
   files compatible with the Cirocs graphing format
-* get_gene_density.R: Using a knownCanonical format file, which looks like:
+* `get_gene_density.R`: Using a knownCanonical format file, which looks like:
+```
     #chrom  chromStart  chromEnd  clusterId transcript  protein
     chr1  11873 14409 1 uc010nxq.1  uc010nxq.1
     chr1  14361 19759 2 uc009viu.3  uc009viu.3
@@ -96,3 +97,4 @@ Other useful functions:
     chr1 6011873 7011872 0.00025000025000025
     chr1 7011873 8011872 0.000254000254000254
     chr1 8011873 9011872 0.000179000179000179
+```

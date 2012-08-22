@@ -800,10 +800,14 @@ R --slave --args $HTSEQ_DIR/htseq_counts_table.tab \
 
 # --- Make tab-delimited file that has all the compared groups --- #
 # --- for differential expression analysis                     --- #
+# Need to source COMMON_VARS to get access to GROUP_IDS, a variable
+# containing the grouping information and IDs (e.g. PrEC_group1of2) that 
+# was created in group_gene_counts.sh
+source $COMMON_VARS
 DIFF_EXPRN_GROUPS=$EXPRN_DIR/diff_exprn_groups.tab
 echo ${TREATMENT_GROUPS_ALL[@]} `echo $GROUP_IDS | \\
-    sed -E 's/(_group)[[:digit:]]of[[:digit:]]/\1/g' | tr , "\t"` \
-    > $DIFF_EXPRN_GROUPS
+    sed -E 's/(_group)[[:digit:]]of[[:digit:]]/\1/g' | tr , ' '` \
+    | tr ' ' "\t" > $DIFF_EXPRN_GROUPS
 echo "DIFF_EXPRN_GROUPS='$DIFF_EXPRN_GROUPS'" | \
     cat - >> $COMMON_VARS
 

@@ -1,25 +1,30 @@
 #/usr/bin/Rscript
+# This script plots a heatmap of the top 40 differentially expressed genes (minus the Olfactory Receptors, because they often turn up as highly differentially expressed even in non-olfactory cells) between LNCaP_group and PrEC_group
 
 # Indices of the top 40 differentially expressed genes with the best adjusted p-value (padj)
+# Olfactory Receptors (gene symbols starting with OR) have been removed because they are highly homologous with one another and cause problems in identifying top differentially expressed genes.
 # All the genes can be seen in padj order in the file:
 # /Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/figures/DESeq/htseq_max_groups_cutoff-0_LNCaP_group-PrEC_group_DEseq.txt
 indPval = c(60,62,91,14,34,246,155,254,283,236,208,310,279,188,312,251,277,244,247,113,248,152,80,97,58,2,23,192,175,191,262,142,133,93,238,75,63,237,267,130)
 
+# Load gplots library for heatmap.2
+library(gplots)
+
 # Variance-stabilized data used for plotting
-vsd = read.delim('/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/figures/DESeq/htseq_max_groups_cutoff-0_vsd.txt', rownames=1)
+vsd = read.delim('/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/figures/DESeq/htseq_max_groups_cutoff-0_vsd.txt', row.names=1)
 
 # Red-blue 'pinkogram' colors for plotting, red=hot, high expression ; blue=cold, low expression
 pinkogram = c('#0000FF','#0101FF','#0202FF','#0303FF','#0404FF','#0505FF','#0606FF','#0707FF','#0808FF','#0909FF','#0A0AFF','#0B0BFF','#0C0CFF','#0D0DFF','#0E0EFF','#0F0FFF','#1010FF','#1111FF','#1212FF','#1313FF','#1414FF','#1515FF','#1616FF','#1717FF','#1818FF','#1919FF','#1A1AFF','#1B1BFF','#1C1CFF','#1D1DFF','#1E1EFF','#1F1FFF','#2020FF','#2121FF','#2222FF','#2323FF','#2424FF','#2525FF','#2626FF','#2727FF','#2828FF','#2929FF','#2A2AFF','#2B2BFF','#2C2CFF','#2D2DFF','#2E2EFF','#2F2FFF','#3030FF','#3131FF','#3232FF','#3333FF','#3434FF','#3535FF','#3636FF','#3737FF','#3838FF','#3939FF','#3A3AFF','#3B3BFF','#3C3CFF','#3D3DFF','#3E3EFF','#3F3FFF','#4040FF','#4141FF','#4242FF','#4343FF','#4444FF','#4545FF','#4646FF','#4747FF','#4848FF','#4949FF','#4A4AFF','#4B4BFF','#4C4CFF','#4D4DFF','#4E4EFF','#4F4FFF','#5050FF','#5151FF','#5252FF','#5353FF','#5454FF','#5555FF','#5656FF','#5757FF','#5858FF','#5959FF','#5A5AFF','#5B5BFF','#5C5CFF','#5D5DFF','#5E5EFF','#5F5FFF','#6060FF','#6161FF','#6262FF','#6363FF','#6464FF','#6565FF','#6666FF','#6767FF','#6868FF','#6969FF','#6A6AFF','#6B6BFF','#6C6CFF','#6D6DFF','#6E6EFF','#6F6FFF','#7070FF','#7171FF','#7272FF','#7373FF','#7474FF','#7575FF','#7676FF','#7777FF','#7878FF','#7979FF','#7A7AFF','#7B7BFF','#7C7CFF','#7D7DFF','#7E7EFF','#7F7FFF','#8080FF','#8181FF','#8282FF','#8383FF','#8484FF','#8585FF','#8686FF','#8787FF','#8888FF','#8989FF','#8A8AFF','#8B8BFF','#8C8CFF','#8D8DFF','#8E8EFF','#8F8FFF','#9090FF','#9191FF','#9292FF','#9393FF','#9494FF','#9595FF','#9696FF','#9797FF','#9898FF','#9999FF','#9A9AFF','#9B9BFF','#9C9CFF','#9D9DFF','#9E9EFF','#9F9FFF','#A0A0FF','#A1A1FF','#A2A2FF','#A3A3FF','#A4A4FF','#A5A5FF','#A6A6FF','#A7A7FF','#A8A8FF','#A9A9FF','#AAAAFF','#ABABFF','#ACACFF','#ADADFF','#AEAEFF','#AFAFFF','#B0B0FF','#B1B1FF','#B2B2FF','#B3B3FF','#B4B4FF','#B5B5FF','#B6B6FF','#B7B7FF','#B8B8FF','#B9B9FF','#BABAFF','#BBBBFF','#BCBCFF','#BDBDFF','#BEBEFF','#BFBFFF','#C0C0FF','#C1C1FF','#C2C2FF','#C3C3FF','#C4C4FF','#C5C5FF','#C6C6FF','#C7C7FF','#C8C8FF','#C9C9FF','#CACAFF','#CBCBFF','#CCCCFF','#CDCDFF','#CECEFF','#CFCFFF','#D0D0FF','#D1D1FF','#D2D2FF','#D3D3FF','#D4D4FF','#D5D5FF','#D6D6FF','#D7D7FF','#D8D8FF','#D9D9FF','#DADAFF','#DBDBFF','#DCDCFF','#DDDDFF','#DEDEFF','#DFDFFF','#E0E0FF','#E1E1FF','#E2E2FF','#E3E3FF','#E4E4FF','#E5E5FF','#E6E6FF','#E7E7FF','#E8E8FF','#E9E9FF','#EAEAFF','#EBEBFF','#ECECFF','#EDEDFF','#EEEEFF','#EFEFFF','#F0F0FF','#F1F1FF','#F2F2FF','#F3F3FF','#F4F4FF','#F5F5FF','#F6F6FF','#F7F7FF','#F8F8FF','#F9F9FF','#FAFAFF','#FBFBFF','#FCFCFF','#FDFDFF','#FEFEFF','#FFFFFF','#FFFFFF','#FFFEFE','#FFFDFD','#FFFCFC','#FFFBFB','#FFFAFA','#FFF9F9','#FFF8F8','#FFF7F7','#FFF6F6','#FFF5F5','#FFF4F4','#FFF3F3','#FFF2F2','#FFF1F1','#FFF0F0','#FFEFEF','#FFEEEE','#FFEDED','#FFECEC','#FFEBEB','#FFEAEA','#FFE9E9','#FFE8E8','#FFE7E7','#FFE6E6','#FFE5E5','#FFE4E4','#FFE3E3','#FFE2E2','#FFE1E1','#FFE0E0','#FFDFDF','#FFDEDE','#FFDDDD','#FFDCDC','#FFDBDB','#FFDADA','#FFD9D9','#FFD8D8','#FFD7D7','#FFD6D6','#FFD5D5','#FFD4D4','#FFD3D3','#FFD2D2','#FFD1D1','#FFD0D0','#FFCFCF','#FFCECE','#FFCDCD','#FFCCCC','#FFCBCB','#FFCACA','#FFC9C9','#FFC8C8','#FFC7C7','#FFC6C6','#FFC5C5','#FFC4C4','#FFC3C3','#FFC2C2','#FFC1C1','#FFC0C0','#FFBFBF','#FFBEBE','#FFBDBD','#FFBCBC','#FFBBBB','#FFBABA','#FFB9B9','#FFB8B8','#FFB7B7','#FFB6B6','#FFB5B5','#FFB4B4','#FFB3B3','#FFB2B2','#FFB1B1','#FFB0B0','#FFAFAF','#FFAEAE','#FFADAD','#FFACAC','#FFABAB','#FFAAAA','#FFA9A9','#FFA8A8','#FFA7A7','#FFA6A6','#FFA5A5','#FFA4A4','#FFA3A3','#FFA2A2','#FFA1A1','#FFA0A0','#FF9F9F','#FF9E9E','#FF9D9D','#FF9C9C','#FF9B9B','#FF9A9A','#FF9999','#FF9898','#FF9797','#FF9696','#FF9595','#FF9494','#FF9393','#FF9292','#FF9191','#FF9090','#FF8F8F','#FF8E8E','#FF8D8D','#FF8C8C','#FF8B8B','#FF8A8A','#FF8989','#FF8888','#FF8787','#FF8686','#FF8585','#FF8484','#FF8383','#FF8282','#FF8181','#FF8080','#FF7F7F','#FF7E7E','#FF7D7D','#FF7C7C','#FF7B7B','#FF7A7A','#FF7979','#FF7878','#FF7777','#FF7676','#FF7575','#FF7474','#FF7373','#FF7272','#FF7171','#FF7070','#FF6F6F','#FF6E6E','#FF6D6D','#FF6C6C','#FF6B6B','#FF6A6A','#FF6969','#FF6868','#FF6767','#FF6666','#FF6565','#FF6464','#FF6363','#FF6262','#FF6161','#FF6060','#FF5F5F','#FF5E5E','#FF5D5D','#FF5C5C','#FF5B5B','#FF5A5A','#FF5959','#FF5858','#FF5757','#FF5656','#FF5555','#FF5454','#FF5353','#FF5252','#FF5151','#FF5050','#FF4F4F','#FF4E4E','#FF4D4D','#FF4C4C','#FF4B4B','#FF4A4A','#FF4949','#FF4848','#FF4747','#FF4646','#FF4545','#FF4444','#FF4343','#FF4242','#FF4141','#FF4040','#FF3F3F','#FF3E3E','#FF3D3D','#FF3C3C','#FF3B3B','#FF3A3A','#FF3939','#FF3838','#FF3737','#FF3636','#FF3535','#FF3434','#FF3333','#FF3232','#FF3131','#FF3030','#FF2F2F','#FF2E2E','#FF2D2D','#FF2C2C','#FF2B2B','#FF2A2A','#FF2929','#FF2828','#FF2727','#FF2626','#FF2525','#FF2424','#FF2323','#FF2222','#FF2121','#FF2020','#FF1F1F','#FF1E1E','#FF1D1D','#FF1C1C','#FF1B1B','#FF1A1A','#FF1919','#FF1818','#FF1717','#FF1616','#FF1515','#FF1414','#FF1313','#FF1212','#FF1111','#FF1010','#FF0F0F','#FF0E0E','#FF0D0D','#FF0C0C','#FF0B0B','#FF0A0A','#FF0909','#FF0808','#FF0707','#FF0606','#FF0505','#FF0404','#FF0303','#FF0202','#FF0101','#FF0000')
-
-# Title for the heatmap
-main = 'LNCaP_group vs PrEC_group 
-min.cutoff = 0'
+print(ls.str())
 
 # Open a pdf file to put the graphics we're about to create
 pdf('/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/figures/DESeq/htseq_max_groups_cutoff-0_LNCaP_group-PrEC_group_top40DE-geneClustering.pdf')
 
-# Plot the heatmap
-heatmap.2(vsd[indPval,], col=pinkogram, main=main)
+# Plot the heatmap. 
+# To remove the cyan line through the heatmap, set trace='none'
+# If your sample or gene names are longer than the margins, you can increase the margin size from the default margin=c(5,5) to margin=(10,10) for example.
+heatmap.2(vsd[indPval,], col=pinkogram, main='LNCaP_group vs PrEC_group 
+min.cutoff = 0')
 
 # Turn off the graphics device so the pdf is open-able.
 # If you do not do this, your pdf reader will claim this file is corrupt and will not open it.

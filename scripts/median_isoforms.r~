@@ -1,2 +1,0 @@
-
-counts = read.delim("ref_combined_counts.txt")

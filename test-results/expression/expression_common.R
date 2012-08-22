@@ -44,7 +44,7 @@ indGroup = grep("group", as.character(conds), ignore.case=TRUE, value=FALSE)
 indNotGroup = grep("group", as.character(conds), ignore.case=TRUE, value=FALSE, 
 	invert = TRUE)
 
-print(ls.str())
+# print(ls.str())
 
 countTypes = list(list(name="bedtools", counts=bedtools.counts,
 	figures=bedtools.figures, deseq.dir=bedtools.deseq.dir,

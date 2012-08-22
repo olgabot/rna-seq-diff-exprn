@@ -103,12 +103,12 @@ for GROUP in `echo $TREATMENT_GROUPS | tr , ' '`; do
 				# echo "merging:" $BAM1_IN " >" $BAM1_OUT
 				samtools merge $BAM_OUT $BAM_IN
 			fi
-			# $SCRIPTS_DIR/gene_counts.sh \
-			# 	$BAM_OUT_PREFIX \
-			# 	$GROUP_i_GENDER \
-			# 	$GROUP_i \
-			# 	$GROUP_i_STRAND \
-			# 	$COMMON_VARS
+			$SCRIPTS_DIR/gene_counts.sh \
+				$BAM_OUT_PREFIX \
+				$GROUP_i_GENDER \
+				$GROUP_i \
+				$GROUP_i_STRAND \
+				$COMMON_VARS
 		fi
 
 		# exit

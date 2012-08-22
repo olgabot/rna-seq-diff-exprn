@@ -1,9 +1,0 @@
-#!/bin/sh
-
-GFF=/home/obot/bed_and_gtf/hg19_ucsc-genes_dexseq.gff
-MAPPED_DIR=/home/obot/single-cell/data
-
-    OUT_DIR=$MAPPED_DIR/Sample_$i
-    IN_BAM=$OUT_DIR/tophat_6n6_trimmed_$i\_merged_rmdup.bam
-    OUT_FILE=$OUT_DIR/dexseq_counts.txt
-    samtools view $IN_BAM | dexseq_count.py $GFF - $OUT_FILE

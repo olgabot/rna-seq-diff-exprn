@@ -1,0 +1,21 @@
+#/usr/bin/Rscript
+# This script plots a histogram showing the distribution of p-values adjusted by the Benjamini-Hochberg correction for controlling False Discovery Rate (FDR). 
+#See http://en.wikipedia.org/wiki/False_discovery_rate for more information.
+#Ideally, a p-value histogram would be flat (uniform distribution), with equal probability of every value.
+
+# Vector of adjusted p-values
+padj = c(1,0.000668847309413848,1,1,1,1,0.771628352470047,1,1,1,1,1,1,1,1,0.894696944566825,0.264942715156328,1,1,1,1,1,0.0953949716174537,1,1,1,1,0.429936508803789,1,0.183086653892854,1,1,1,1,1,1,1.04189651636177e-06,1,1,1,1,1,1,1,1,1,1,1,1,1,0.607038553163702,1,1,1,1,1,1,1,1,1,1,3.41342557600824e-23,1,2.3991216067143e-11,0.0975980911754662,1,1,1,0.237501292784715,1,1,1,1,1,1,1,1,1,0.532081023741205,1,1,1,0.24578315878162,1,1,1,1,0.894696944566825,1,1,1,1,3.41342557600824e-23,1,1,1,1,1,0.153028071775824,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.138707691704116,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.24578315878162,0.384490091436153,1,1,0.0698296915251776,1,1,1,1,1,1,1,8.31995053536191e-06,0.000668847309413848,1,1,1,1,1,1,0.607038553163702,1,1,0.066112859541022,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.11676389003208,0.607038553163702,1,1,1,1,1,1,1,1,1,1,0.0185367026107129,1,1,1,0.122819090683648,1,1,1,1,1,1,1,1,1,1,0.129858281016257,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.781320106867526,0.0955651011251986,1,0.566142342020547,1,1,1,1,0.122819090683648,1,0.0505891965243717,1,0.0698296915251776,1,1,1,1,0.0806672433907136,0.0698296915251776,1,1,1,0.0645402775672659,1,1,1,1,1,1,0.152638522779225,1,1,1,1,0.384490091436153,1,1,1,0.0698296915251776,0.429936508803789,1,1,1,1,1,1,0.0698296915251776,0.204108823981584,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.150969842278351,1,1,0.285865941346316,1,1,1,1,1,1,1,0.0698296915251776,1,1,1,1,1,0.0444804072656247,1,1,1,1,1,1,1,1,1,1,1,0.0206588874090986,1,1,1,0.0053408681307538,0.638697549223355,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3.71111253799813e-07,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.0698296915251776,0.237501292784715,1,1,0.183086653892854,1,1)
+
+# The expression_common.R file sources the DESeq_utils.R file that has the plotting functions we need
+source('/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/expression_common.R')
+
+# Open a pdf file to put the graphics we're about to create
+pdf('/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/figures/DESeq/htseq_all_individuals_cutoff-0_LNCaP-PrEC_padj.pdf')
+
+# Plot adjusted p-values on a histogram
+pValHist(padj, "LNCaP vs PrEC 
+adjusted p-values")
+
+# Turn off the graphics device so the pdf is open-able.
+# If you do not do this, your pdf reader will claim this file is corrupt and will not open it.
+dev.off()
