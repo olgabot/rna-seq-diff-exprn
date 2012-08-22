@@ -647,10 +647,10 @@ echo "COVERAGE_BEDTOOLS='$COVERAGE_BEDTOOLS'" | cat - >> $COMMON_VARS
 echo 'looking for your htseq-counts file ... hopefully you installed HTSeq'
 
 # On Olga's machine for speed:
-HTSEQ_BIN=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin/htseq-count
+# HTSEQ_BIN=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin/htseq-count
 # --- BEGIN On anyone else's machine --- #
-# HTSEQ_BIN=`find /opt/local -name 'htseq-count' -exec \\
-#     echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
+HTSEQ_BIN=`find /opt/local -name 'htseq-count' -exec \\
+    echo - grep 'htseq-count' {} \; -quit 2>find.err | awk -F' ' '{ print $4 }' `
 # --- END On anyone else's machine --- #
 
 # The real slim shady:
@@ -696,9 +696,9 @@ for (( i = 0 ; i < $END ; ++i )); do
     # Do quality control on this via 
     # RNA-Seq-QualityControl, aka RSeqQC:
     # ------------ BEGIN Debugging
-    # pushd $RSEQC_OUT_DIR 
-    # $SCRIPTS_DIR/rseqc.sh $BAM_PREFIX.bam $RSEQC_OUT_DIR $BED
-    # popd 
+    pushd $RSEQC_OUT_DIR 
+    $SCRIPTS_DIR/rseqc.sh $BAM_PREFIX.bam $RSEQC_OUT_DIR $BED
+    popd 
     # ------------ END Debugging (uncomment this for the real thing)
 
     # Detect structural variants via SVDetect for this sample
@@ -711,8 +711,8 @@ for (( i = 0 ; i < $END ; ++i )); do
 # 3. Estimates differential exon usage counts using
 #    dexseq_counts.py
     # ------------ BEGIN Debugging
-    # $SCRIPTS_DIR/gene_counts.sh $BAM_PREFIX $EXPRN_OUT_DIR \
-	   # $GENDER $ID $STRAND $COMMON_VARS $i
+    $SCRIPTS_DIR/gene_counts.sh $BAM_PREFIX $EXPRN_OUT_DIR \
+	   $GENDER $ID $STRAND $COMMON_VARS $i
     # ------------ END Debugging (uncomment this for the real thing)
 done
 
@@ -732,7 +732,7 @@ fi
 # Regardless of whether the number of groups was specified
 # or not, plot all the samples on the same circos plot
 # --- BEGIN Debugging comments --- #
-# $SCRIPTS_DIR/circos_all_samples.sh $COMMON_VARS
+$SCRIPTS_DIR/circos_all_samples.sh $COMMON_VARS
 # --- END Debugging comments --- #
 
 

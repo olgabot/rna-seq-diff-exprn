@@ -112,8 +112,8 @@ $HTSEQ_BIN \
 
 
 # --- BEGIN Circos file preparation and plotting --- #
-# $SCRIPTS_DIR/circos_single_sample.sh \
-#     $BAM $SAM_SORTED $GENDER $ID $COMMON_VARS $i
+$SCRIPTS_DIR/circos_single_sample.sh \
+    $BAM $SAM_SORTED $GENDER $ID $COMMON_VARS $i
 # --- END Circos file preparation and plotting   --- #
 
 ############# BEGIN DEXSeq counts ##################
