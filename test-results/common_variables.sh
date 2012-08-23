@@ -71,29 +71,3 @@ COVERAGE_HTSEQ='htseq_genome_coverage.wig'
 COVERAGE_BEDTOOLS_PREFIX='bedtools_genome_coverage'
 COVERAGE_BEDTOOLS='bedtools_genome_coverage.txt'
 HTSEQ_BIN='/opt/local/Library/Frameworks/Python.framework/Versions/2.7/bin/htseq-count'
-TREATMENT_GROUPS_DIR='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/merged_groups_bam'
-
-# Variables from calculating group gene counts
-GROUP_IDS='LNCaP_group1of2,LNCaP_group2of2,PrEC_group1of2,PrEC_group2of2'
-COUNTS_BED_TAB='bedtools_txptID_count.txt'
-COUNTS_HTSEQ_TAB='htseq_txptID_count.txt'
-
-# Variables for expression counts tables
-BED_COUNTS_TABLE='bedtools_counts_table.tab'
-HTSEQ_COUNTS_TABLE='htseq_counts_table.tab'
-EXPRN_SCRIPTS_DIR='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/scripts/expression'
-BEDTOOLS_ALL='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/bedtools_counts_table_all.tab'
-BEDTOOLS_MAX='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/bedtools_counts_table_max.tab'
-HTSEQ_ALL='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/htseq_counts_table_all.tab'
-HTSEQ_MAX='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/htseq_counts_table_max.tab'
-DIFF_EXPRN_GROUPS='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/diff_exprn_groups.tab'
-
-# --- Variables for DESEQ analysis --- #
-BEDTOOLS_FIGS='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/figures'
-BEDTOOLS_DESEQ_DIR='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/figures/DESeq'
-BEDTOOLS_DESEQ_PREFIX='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/bedtools/figures/DESeq/'
-HTSEQ_FIGS='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/figures'
-HTSEQ_DESEQ_DIR='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/figures/DESeq'
-HTSEQ_DESEQ_PREFIX='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/htseq/figures/DESeq/'
-EXPRESSION_COMMON='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/test-results/expression/expression_common.R'
-DESEQ_SCRIPTS_DIR='/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/scripts/expression/DESeq'

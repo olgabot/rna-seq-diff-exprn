@@ -1,3 +1,0 @@
-## Exclude the sensitive and HUGE data files
-data/**/*
-results/**/*

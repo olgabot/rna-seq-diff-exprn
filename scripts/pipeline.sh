@@ -4,7 +4,7 @@
 # scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt
 
 # Example run (with groups):
-# scripts/pipeline.sh test-results test-data/conditions_chr9_noPrEC_2.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt 2
+# scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt 2
 
 # Test for making sure there are at least two samples per
 # treatment type (This *should* break)
@@ -163,8 +163,8 @@ TREATMENT_GROUPS=`cut -f3 $COND_WITHOUT_COMMENTS | \\
 echo "TREATMENT_GROUPS='$TREATMENT_GROUPS'" | cat - >> $COMMON_VARS
 TREATMENT_GROUPS_ALL=( `cut -f3 $COND_WITHOUT_COMMENTS` ) #| \\
     # tr "\n" ' '` )
-echo `cut -f3 $COND_WITHOUT_COMMENTS`
-echo ${TREATMENT_GROUPS_ALL[@]}
+# echo `cut -f3 $COND_WITHOUT_COMMENTS`
+# echo ${TREATMENT_GROUPS_ALL[@]}
 echo "TREATMENT_GROUPS_ALL=( ${TREATMENT_GROUPS_ALL[@]} )" | \
     cat - >> $COMMON_VARS
 
@@ -208,7 +208,7 @@ for G in ${TREATMENT_GROUPS_ALL[@]}; do
     fi
 done
 
-echo ${OBSERVED_TREATMENT_GROUPS[@]}
+# echo ${OBSERVED_TREATMENT_GROUPS[@]}
 
 # Check if any treatment group has been observed only
 # once, i.e. if there is any value in OBSERVED_TREATMENT_GROUPS

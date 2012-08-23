@@ -12,6 +12,11 @@ sequencing machine such as Illumina Hi-Seq 2000.
 
 Performs: genome coverage (via bedtools and HTSeq), generates Circos code and plots, differential expression (via DESeq and NOISeq), structural variant detection (e.g. fusion genes, via SVDetect) and differential exon usage (via DEXSeq).
 
+To run the example, go to the folder for `rna-seq-diff-exprn`. In my case, this is `/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/`. Then, perform this command:
+```
+scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt 2
+```
+
 Dependencies (what you should already have installed, or need to install to use this RNA-Sequencing analysis software)
 Note: This may seem like a lot, but if you are in biomedical research, it 
 is likely that the servers at your institution already have most of these
