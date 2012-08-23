@@ -1,4 +1,4 @@
-rna-seq-diff-exprn
+rna-seq-diff-exprn (aka RSDE)
 =============
 
 RNA-sequencing differential expression analysis pipeline.
@@ -12,11 +12,13 @@ sequencing machine such as Illumina Hi-Seq 2000.
 
 Performs: genome coverage (via bedtools and HTSeq), generates Circos code and plots, differential expression (via DESeq and NOISeq), structural variant detection (e.g. fusion genes, via SVDetect) and differential exon usage (via DEXSeq).
 
+### How to run the example code
 To run the example, go to the folder for `rna-seq-diff-exprn`. In my case, this is `/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/`. Then, perform this command:
 ```
 scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt 2
 ```
 
+### Dependencies
 Dependencies (what you should already have installed, or need to install to use this RNA-Sequencing analysis software)
 Note: This may seem like a lot, but if you are in biomedical research, it 
 is likely that the servers at your institution already have most of these
@@ -81,6 +83,16 @@ installed.
 `wig_to_circos.R`: Converts .wig files (genome browser-type files) to
   files compatible with the Cirocs graphing format
 
+#### Usage
+```
+scripts/wig_to_circos.R [input .wig file] [output circos file (any extension you want, .txt is fine)]
+```
+
+#### Example
+```
+scripts/wig_to_circos.R test-data/hg19_gc1000Base.txt test-data/hg19_gc_content_circos.txt
+```
+
 ### get_gene_density.R
 `get_gene_density.R`: Using a knownCanonical format file, which looks like:
 
@@ -113,6 +125,16 @@ chr1 7011873 8011872 0.000254000254000254
 chr1 8011873 9011872 0.000179000179000179
 ```
 
+#### Usage
+```
+scripts/get_gene_density.R [knownCanonical file] [output file] [base window upon which to calculate density]
+```
+
+#### Example
+```
+scripts/get_gene_density.R test-data/hg19_ucsc_knownCanonical.tab test-data/hg19_gene_density_1e5bins.txt 1e5
+```
+
 ### merge_columns.sh
 `merge_columns.sh`: Merges columns of many files. The specific use case here is to take in a transcriptID-geneSymbol file, and many transcript counts files, and output a table such as:
 
@@ -125,12 +147,12 @@ uc011lyl.2  TTLL11  397 0 456 450 298 207 1744  838
 uc011lym.1  TTLL11  71  0 88  87  61  37  322 147
 ```
 
-Usage:
+#### Usage
 ```
-scripts/merge_columns.sh <two-column files, names are comma-delimited> <column names, comma-delimited> <output file>
+scripts/merge_columns.sh [two-column files, names are comma-delimited] [column names, comma-delimited] [output file]
 ```
 
-Example:
+#### Example
 ```
 scripts/merge_columns.sh test-data/hg19_id_symbol.txt,test-results/expression/bedtools/LNCaP_1/bedtools_name_count.txt,test-results/expression/bedtools/LNCaP_2/bedtools_name_count.txt,test-results/expression/bedtools/LNCaP_3/bedtools_name_count.txt,test-results/expression/bedtools/LNCaP_4/bedtools_name_count.txt,test-results/expression/bedtools/PrEC_1/bedtools_name_count.txt,test-results/expression/bedtools/PrEC_2/bedtools_name_count.txt transcriptID,geneSymbol,LNCaP_1,LNCaP_2,LNCaP_3,LNCaP_4,PrEC_1,PrEC_2 test-results/expression/bedtools/bedtools_gene_counts_table.tab
 ```
