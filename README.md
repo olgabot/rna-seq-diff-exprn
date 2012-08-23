@@ -75,32 +75,62 @@ installed.
       http://bioconductor.org/packages/release/bioc/html/DEXSeq.html
 
 
-Other useful functions:
-* `wig_to_circos.R`: Converts .wig files (genome browser-type files) to
+## Other useful functions
+
+### wig_to_circos.R
+`wig_to_circos.R`: Converts .wig files (genome browser-type files) to
   files compatible with the Cirocs graphing format
-* `get_gene_density.R`: Using a knownCanonical format file, which looks like:
+
+### get_gene_density.R
+`get_gene_density.R`: Using a knownCanonical format file, which looks like:
 
 ```
-    #chrom  chromStart  chromEnd  clusterId transcript  protein
-    chr1  11873 14409 1 uc010nxq.1  uc010nxq.1
-    chr1  14361 19759 2 uc009viu.3  uc009viu.3
-    chr1  14406 29370 3 uc009viw.2  uc009viw.2
-    chr1  34610 36081 4 uc001aak.3  uc001aak.3
-    chr1  69090 70008 5 uc001aal.1  uc001aal.1
-    chr1  136697  140566  6 uc001aam.4  uc001aam.4
-    chr1  321083  321115  7 uc001aaq.2  uc001aaq.2
-    chr1  321145  321207  8 uc001aar.2  uc001aar.2
-    chr1  322036  326938  9 uc009vjk.2  uc009vjk.2
-  Find the number of genes per 1 megabase and reports the gene density, 
-  for example:
-    #chr  chrStart  chrEnd  density
-    chr1 11873 1011872 0.00062000062000062
-    chr1 1011873 2011872 0.000585000585000585
-    chr1 2011873 3011872 0.00058000058000058
-    chr1 3011873 4011872 0.000592000592000592
-    chr1 4011873 5011872 0.000394000394000394
-    chr1 5011873 6011872 0.0002000002000002
-    chr1 6011873 7011872 0.00025000025000025
-    chr1 7011873 8011872 0.000254000254000254
-    chr1 8011873 9011872 0.000179000179000179
+#chrom  chromStart  chromEnd  clusterId transcript  protein
+chr1  11873 14409 1 uc010nxq.1  uc010nxq.1
+chr1  14361 19759 2 uc009viu.3  uc009viu.3
+chr1  14406 29370 3 uc009viw.2  uc009viw.2
+chr1  34610 36081 4 uc001aak.3  uc001aak.3
+chr1  69090 70008 5 uc001aal.1  uc001aal.1
+chr1  136697  140566  6 uc001aam.4  uc001aam.4
+chr1  321083  321115  7 uc001aaq.2  uc001aaq.2
+chr1  321145  321207  8 uc001aar.2  uc001aar.2
+chr1  322036  326938  9 uc009vjk.2  uc009vjk.2
+```
+
+Find the number of genes per 1 megabase and reports the gene density, 
+for example:
+
+```
+#chr  chrStart  chrEnd  density
+chr1 11873 1011872 0.00062000062000062
+chr1 1011873 2011872 0.000585000585000585
+chr1 2011873 3011872 0.00058000058000058
+chr1 3011873 4011872 0.000592000592000592
+chr1 4011873 5011872 0.000394000394000394
+chr1 5011873 6011872 0.0002000002000002
+chr1 6011873 7011872 0.00025000025000025
+chr1 7011873 8011872 0.000254000254000254
+chr1 8011873 9011872 0.000179000179000179
+```
+
+### merge_columns.sh
+`merge_columns.sh`: Merges columns of many files. The specific use case here is to take in a transcriptID-geneSymbol file, and many transcript counts files, and output a table such as:
+
+```
+transcriptID  geneSymbol  LNCaP_1 LNCaP_2 LNCaP_3 LNCaP_4 PrEC_1 PrEC_2
+uc004blr.3  TTLL11  397 0 456 450 298 207 1744  838
+uc004blt.1  TTLL11  78  0 92  98  76  53  356 166
+uc004blu.1  TTLL11  78  0 92  98  76  53  356 166
+uc011lyl.2  TTLL11  397 0 456 450 298 207 1744  838
+uc011lym.1  TTLL11  71  0 88  87  61  37  322 147
+```
+
+Usage:
+```
+scripts/merge_columns.sh <two-column files, names are comma-delimited> <column names, comma-delimited> <output file>
+```
+
+Example:
+```
+scripts/merge_columns.sh test-data/hg19_id_symbol.txt,test-results/expression/bedtools/LNCaP_1/bedtools_name_count.txt,test-results/expression/bedtools/LNCaP_2/bedtools_name_count.txt,test-results/expression/bedtools/LNCaP_3/bedtools_name_count.txt,test-results/expression/bedtools/LNCaP_4/bedtools_name_count.txt,test-results/expression/bedtools/PrEC_1/bedtools_name_count.txt,test-results/expression/bedtools/PrEC_2/bedtools_name_count.txt transcriptID,geneSymbol,LNCaP_1,LNCaP_2,LNCaP_3,LNCaP_4,PrEC_1,PrEC_2 test-results/expression/bedtools/bedtools_gene_counts_table.tab
 ```
