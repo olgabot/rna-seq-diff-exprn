@@ -78,8 +78,7 @@ installed.
 Other useful functions:
 * `wig_to_circos.R`: Converts .wig files (genome browser-type files) to
   files compatible with the Cirocs graphing format
-* `get_gene_density.R`: Using a knownCanonical format file, which looks like:
-```
+* `get_gene_density.R`: Using a knownCanonical format file, which looks like:```
     #chrom  chromStart  chromEnd  clusterId transcript  protein
     chr1  11873 14409 1 uc010nxq.1  uc010nxq.1
     chr1  14361 19759 2 uc009viu.3  uc009viu.3
