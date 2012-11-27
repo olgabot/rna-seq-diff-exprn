@@ -6,6 +6,7 @@
 ####
 # This is a tab-delimited file, with the following columns:
 # bam_prefix	id	group	gender	read_type	strandedness
+## bam_prefix = the filename, without the .bam
 ## id = (user-defined, could be anything)
 ## group = (user-defined, could be anything)
 ## gender = male --or-- female

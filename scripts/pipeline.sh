@@ -115,14 +115,14 @@ echo "CIRCOS_BIN='$CIRCOS_BIN'" | cat - >> $COMMON_VARS
 echo "BASE_OUT_DIR='$BASE_OUT_DIR'" | cat - >> $COMMON_VARS
 
 # tab-delimited file of the conditions of each sample, e.g.:
-# bam_prefix                   id      group     gender read_type
+# bam_prefix                   id      group     gender read_type   strandedness
 # (no header in actual file, this is an example)
-# ~/data/sample1/accepted_hits sample1 untreated female paired_end
-# ~/data/sample2/accepted_hits sample2 untreated female paired_end
-# ~/data/sample3/accepted_hits sample3 untreated male paired_end
-# ~/data/sample4/accepted_hits sample4 treated female paired_end
-# ~/data/sample5/accepted_hits sample5 treated female paired_end
-# ~/data/sample6/accepted_hits sample6 treated male paired_end
+# test-data/GSM721117_mctp_20F0GAAXX_1_chr9_withheader    LNCaP_1 LNCaP   male    single_read not_strand_specific # (This is a comment) Illumina
+# test-data/GSM721119_mctp_20F0GAAXX_2_chr9_withheader    LNCaP_2 LNCaP   male    single_read not_strand_specific # Illumina
+# test-data/GSM721118_mctp_20F0GAAXX_3_chr9_withheader    LNCaP_3 LNCaP   male    single_read not_strand_specific
+# test-data/GSM721116_mctp_20F0GAAXX_4_chr9_withheader    LNCaP_4 LNCaP   male    single_read not_strand_specific
+# test-data/GSM721123_mctp_30CYNAAXX_5_chr9_withheader    PrEC_1  PrEC    male    single_read not_strand_specific
+# test-data/GSM721124_mctp_209ENAAXX_8_chr9_withheader    PrEC_2  PrEC    male    single_read not_strand_specific
 COND="$2"
 if [[ $COND != /* ]]; then
     # if $COND is not an absolute path (starts with `/'), 
@@ -256,7 +256,9 @@ echo "\n# Gene and species-specific variables" | cat - >> $COMMON_VARS
 #    like hg19_ucsc_genes.gtf)
 #    Make sure to include the file extension (.gtf) in the filename
 # 5. Press "get output"
-#    --> A file will be downloaded to your "Downloads" folder
+#    --> A file will be downloaded to your "Downloads" folder that you 
+#        will need to move to somewhere more permanent, such as where you 
+#        keep your other gene information files.
 GTF="$3"
 if [[ $GTF != /* ]]; then
     # if $GTF is not an absolute path (starts with `/'), then make it one
@@ -299,10 +301,12 @@ echo "DEXSEQ_GTF='$DEXSEQ_GTF'" | cat - >> $COMMON_VARS
 #   region: "genome"
 #   output format: "BED - browser extensible data"
 # 4. output file: (whatever you want, but I suggest something informative
-#    like hg19_ucsc_genes.gtf)
-#    Make sure to include the file extension (.gtf) in the filename
+#    like hg19_ucsc_genes.bed)
+#    Make sure to include the file extension (.bed) in the filename
 # 5. Press "get output"
-#    --> A file will be downloaded to your "Downloads" folder
+#    --> A file will be downloaded to your "Downloads" folder that you 
+#        will need to move to somewhere more permanent, such as where you 
+#        keep your other gene information files.
 
 # Need to the first 'track name' line in a BED file or else rseqc gets mad
 BED=$5.without_track_name
@@ -330,7 +334,7 @@ echo "BED='$BED'" | cat - >> $COMMON_VARS
 #   output format: "GTF - gene transfer format"
 # 4. output file: (whatever you want, but I suggest something informative
 #    like hg19_kgXref.txt)
-#    Make sure to include the file extension (.gtf) in the filename
+#    Make sure to include the file extension (`.txt`, for example) in the filename
 # 5. Press "get output"
 # 6. Now you need to take an extra step to get just the UCSC IDs, 
 #    e.g. uc002gig.1 (column 1 in the kgXref file) and the gene symbols,
@@ -487,12 +491,12 @@ if [[ ${#*} > 10 ]]; then
 # the grouped ones, with a header like this:
 # (with spaces instead of tabs)
 # sample1 sample2 sample3 sample4 sample5 sample6 untreatedGroup1 untreatedGroup2 treatedGroup1 treatedGroup2
-## Where untreatedGroup1 has sample1 and sample2, while
-## untreatedGroup2 contains only sample3.
+# # Where untreatedGroup1 has sample1 and sample2, while
+# # untreatedGroup2 contains only sample3.
 # To change the ordering of samples into groupings, change
 # the conditions file, as that is what all the sample
 # typing goes off of.
-# 
+
 # If you don't want ANY groupings, omit this variable from the command 
 # line.
     NUM_GROUPS=${11}

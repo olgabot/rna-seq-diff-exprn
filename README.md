@@ -13,7 +13,7 @@ sequencing machine such as Illumina Hi-Seq 2000.
 Performs: genome coverage (via bedtools and HTSeq), generates Circos code and plots, differential expression (via DESeq and NOISeq), structural variant detection (e.g. fusion genes, via SVDetect) and differential exon usage (via DEXSeq).
 
 ### How to run the example code
-To run the example, go to the folder for `rna-seq-diff-exprn`. In my case, this is `/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/`. Then, perform this command:
+To run the example, go to the folder where you saved `rna-seq-diff-exprn`. In my case, this is `/Users/olgabotvinnik/workspace/rna-seq-diff-exprn/`. Then, perform this command:
 ```
 scripts/pipeline.sh test-results test-data/conditions_chr9.tab test-data/hg19_ucsc_genes.gtf test-data/hg19_ucsc_genes_chr9_dexseq.gtf test-data/hg19_ucsc_genes.bed test-data/hg19_id_symbol.txt test-data/human.hg19.genome test-data/karyotype/karyotype.human.hg19.txt test-data/hg19_gene_density_1e5bins.txt test-data/hg19_gc_content_circos_chr9.txt 2
 ```
@@ -124,6 +124,8 @@ chr1 6011873 7011872 0.00025000025000025
 chr1 7011873 8011872 0.000254000254000254
 chr1 8011873 9011872 0.000179000179000179
 ```
+
+Note: the smaller window you choose, the longer this will take and the stranger densities you will encounter. Keep in mind the average gene size for your species. For example, in humans, the average gene size is ~3,000bp, so I used 100,000bp (1e5) as the range, about 100-fold more than the average gene size.
 
 #### Usage
 ```

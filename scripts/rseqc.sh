@@ -44,5 +44,6 @@ echo 'executing: read_duplication.py' ; read_duplication.py --input-file $BAM --
 echo 'executing: read_GC.py' ; read_GC.py --input-file $BAM --out-prefix $PREFIX
 echo 'executing: read_NVC.py' ; read_NVC.py --input-file $BAM --out-prefix $PREFIX
 echo 'executing: read_quality.py' ; read_quality.py --input-file $BAM --out-prefix $PREFIX
-echo 'executing: RPKM_saturation.py' ; RPKM_saturation.py --input-file $BAM --out-prefix $PREFIX --refgene $BED 
 echo 'executing: RPKM_count.py' ; RPKM_count.py --input-file $BAM --out-prefix $PREFIX --refgene $BED
+echo 'executing: RPKM_saturation.py' ; RPKM_saturation.py --input-file $BAM --out-prefix $PREFIX --refgene $BED 
+

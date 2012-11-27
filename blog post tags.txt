@@ -1,0 +1,1 @@
+RNA-Seq analysis pipeline, differential expression, heatmaps, RNA-Seq, RNA-Sequencing, bioinformatics, computational biology, pipeline, analysis, DESeq, NOISeq, DEXSeq, Circos, bedtools, samtools
